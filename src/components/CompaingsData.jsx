@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 const CompaingsData = ({ campaigns, loading }) => {
   const [showMenu, SetShowMenu] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Performance");
-  const [progress, setProgress] = useState(0);
   const navigate = useNavigate();
   const handleShowSlector = () => {
     SetShowMenu(true);
@@ -166,25 +165,7 @@ const CompaingsData = ({ campaigns, loading }) => {
     ? (tatalClicksAll / totalImpressions) * 100
     : 0; // Handle case where campaigns? might be empty
   const totalCPCAll = campaigns?.length ? totalAmountSpent / tatalClicksAll : 0; // Handle case where campaigns? might be empty
-  useEffect(() => {
-    let interval;
-    if (loading) {
-      setProgress(0);
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return prev + 1;
-        });
-      }, 50); // Adjust speed of loading here
-    } else {
-      setProgress(100);
-    }
 
-    return () => clearInterval(interval);
-  }, [loading]);
   const handleViewChart = (id) => {
     navigate(`/editmainchart/${id}`);
   };
