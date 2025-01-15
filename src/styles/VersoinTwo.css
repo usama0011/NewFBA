@@ -1,0 +1,192 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap");
+
+body {
+  font-family: inherit;
+  background: #fff;
+  color: #1c1e21;
+  direction: ltr;
+  line-height: 1.28;
+  font-size: 12px;
+}
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+/* Scoped scrollbar styles for versointowsirtable */
+.versointowsirtable::-webkit-scrollbar {
+  height: 8px; /* Height for horizontal scrollbar */
+  width: 8px;
+}
+
+.versointowsirtable::-webkit-scrollbar-thumb {
+  background-color: #b0b0b0; /* Thumb color */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.versointowsirtable::-webkit-scrollbar-thumb:hover {
+  background-color: #909090; /* Darker color on hover */
+}
+
+.versointowsirtable::-webkit-scrollbar-track {
+  background-color: white; /* Track color */
+  border-radius: 4px; /* Rounded corners */
+}
+
+/* Firefox scrollbar styling */
+.scrollable-container {
+  scrollbar-width: thin; /* Use thin scrollbar */
+  scrollbar-color: #b0b0b0 #f0f0f0; /* Thumb and track colors */
+}
+.hidden-cell {
+  visibility: hidden;
+  height: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Container for the ad creative */
+.ad-creative-container {
+  max-width: 300px;
+  display: flex;
+  align-items: start;
+  white-space: normal;
+  position: relative;
+  padding: 0;
+}
+
+/* Thumbnail styling */
+.ad-creative-thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  padding: 0;
+  margin: 0;
+}
+
+/* Text content styling */
+.ad-creative-text {
+  margin-left: 10px;
+  display: flex;
+  flex-direction: column !important;
+}
+
+.ad-title {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.ad-description {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.ad-used-in {
+  font-size: 14px;
+  color: gray;
+}
+
+/* Hover ad preview styling */
+.hover-ad-preview {
+  position: absolute;
+  top: 0px; /* Adjust based on layout */
+  left: 70px;
+  width: 350px;
+  height: 450px;
+  background-color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  display: none; /* Initially hidden */
+}
+
+/* Placeholder for ad preview content */
+.ad-preview-placeholder {
+  height: 100%; /* Placeholder size */
+  background-color: white; /* Placeholder background */
+  border-radius: 4px;
+}
+/* Add an arrow on the left side of the hover-ad-preview */
+.hover-ad-preview::before {
+  content: "";
+  position: absolute;
+  top: 10px; /* Adjust arrow position vertically */
+  left: -18px; /* Position outside the main div */
+  width: 0;
+  height: 0;
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent white transparent transparent;
+  z-index: 1000;
+}
+/* Hover effect: Show the ad preview */
+.ad-creative-container:hover .hover-ad-preview {
+  display: block;
+}
+
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-3Zn2i.style-3Zn2i {
+  border-right-color: rgb(218, 221, 225);
+  border-bottom-color: rgb(218, 221, 225);
+  height: 72px;
+}
+#style-OQtVP.style-OQtVP {
+  letter-spacing: normal;
+  font-family: Arial, sans-serif;
+  color: rgb(28, 30, 33);
+  font-size: 12px;
+  line-height: 16px;
+}
+#style-bnBpU.style-bnBpU {
+  max-width: 145px;
+}
+#style-I3pLI.style-I3pLI {
+  -webkit-line-clamp: 3;
+}
+#style-Ltq1U.style-Ltq1U {
+  overflow-wrap: break-word;
+}
+#style-qxpXt.style-qxpXt {
+  width: 24px;
+  letter-spacing: normal;
+  color: rgb(68, 73, 80);
+  font-size: 12px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  line-height: 24px;
+  text-align: center;
+  background-color: rgb(245, 246, 247);
+  border-color: rgb(218, 221, 225);
+  height: 24px;
+  border-radius: 2px;
+  border-width: 0px;
+}
+#style-UP4Kr.style-UP4Kr {
+  background-image: url("https://static.xx.fbcdn.net/rsrc.php/v4/yb/r/eYzbQUyW0kL.png?_nc_eui2=AeGt-mxT_wybmTt_FXOyZ0PVuBSOSW3WQ8m4FI5JbdZDyYHwhTT6wxMGSnSKHmYepjr0O_25EfSIYfdcXPZEOmaI");
+  background-position: -372px -954px;
+  background-size: auto;
+  width: 12px;
+  height: 12px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+
+/* Add thicker left border for "Amount Spent" column */
+.reporttingmoiztable th[data-index="Amount Spent"],
+td[data-index="Amount Spent"] {
+  border-left: 4px solid #ddd !important; /* Adjust the width and color as needed */
+}
+
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-ffYGH.style-ffYGH {
+  cursor: default;
+  background-image: url("https://static.xx.fbcdn.net/rsrc.php/v4/yC/r/i2UlfA-ITK0.png?_nc_eui2=AeHwzc6jysKGc_63AFg3UqhYi9EkY4ZzukWL0SRjhnO6RS4Mky7EAfn_asA3OrOOeAT_F3MG_2CGqRZRTaFNdjmn");
+  background-position: -491px -723px;
+  background-size: auto;
+  width: 12px;
+  height: 12px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}

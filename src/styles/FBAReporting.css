@@ -1,0 +1,128 @@
+.testmyreproing .ant-table td[rowspan="0"] {
+  display: none;
+}
+
+/* Hide cells with null values */
+.hidden-cell {
+  visibility: hidden !important;
+}
+
+/* Highlight the first row for a specific Page Name */
+.testmyreproing .highlight-first-cell-row td {
+  background-color: #f2f5f4 !important; /* Full row highlight */
+}
+
+/* Only highlight the first cell of the Page Name column */
+.testmyreproing .highlight-first-cell {
+  background-color: #f2f5f4 !important;
+  font-weight: bold;
+}
+/* General table styling */
+.testmyreproing .ant-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.anydeinsgcustommytable {
+  background-color: white !important;
+}
+/* Table cell styling */
+.testmyreproing .ant-table td {
+  text-align: left;
+  border: 1px solid rgb(235, 234, 234); /* Subtle border for clean design */
+  background-color: white !important;
+  font-size: 14px !important;
+}
+
+/* Merged cells styling */
+.testmyreproing .ant-table td[rowspan] {
+  vertical-align: top !important; /* Align merged cell content vertically */
+}
+
+/* Table header styling */
+.testmyreproing .ant-table th {
+  background-color: white !important; /* Light background for headers */
+  text-align: center;
+  vertical-align: top;
+  border-radius: 0 !important;
+}
+
+.ad-creative {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* .ad-creative-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+} */
+
+.ad-creative-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.ad-creative-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.ad-creative-description {
+  font-size: 14px;
+  color: #555;
+}
+
+.ad-creative-adtext {
+  font-size: 12px;
+  color: #888;
+}
+
+.testmyreproing .ant-table-container {
+  border-spacing: 0 !important; /* Remove spacing between header and body */
+}
+
+.testmyreproing .ant-table-cell {
+  padding: 5px !important; /* Adjust padding for cells if needed */
+}
+
+.testmyreproing .ant-table-thead > tr > th {
+  margin: 0 !important; /* Remove margin in header cells */
+}
+
+.testmyreproing .ant-table-tbody > tr > td {
+  margin: 0 !important; /* Remove margin in body cells */
+  padding: 0px 5px !important;
+}
+.testmyreproing .ant-table-summary {
+  height: 60px !important; /* Adjust this value to your desired height */
+}
+
+.testmyreproing .ant-table-summary .ant-table-cell {
+  line-height: 60px !important; /* Ensure content aligns vertically */
+  padding: 16px; /* Adjust padding for better spacing */
+}
+
+.testmyreproing .ant-table-tbody > tr {
+  padding: 4px 8px !important;
+}
+
+.testmyreproing {
+  position: relative;
+}
+
+.loading-baroo {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  top: 70px;
+  z-index: 999;
+  background-color: #f0f0f0; /* Background for the progress bar container */
+  overflow: hidden;
+}
+
+.loading-progressoo {
+  height: 100%;
+  background-color: #1890ff; /* Progress bar color */
+  transition: width 0.2s ease-in-out; /* Smooth animation */
+  width: 0;
+}

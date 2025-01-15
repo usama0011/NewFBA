@@ -1,0 +1,60 @@
+.home-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+.home-title {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
+}
+
+.button-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.nav-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.view-campaigns-button {
+    background-color: #007bff;
+}
+
+.view-adsset-button {
+    background-color: #28a745;
+}
+
+.view-ads-button {
+    background-color: #17a2b8;
+}
+
+.create-campaign-button {
+    background-color: #ffc107;
+}
+
+.create-ad-button {
+    background-color: #fd7e14;
+}
+
+.create-adset-button {
+    background-color: #6f42c1;
+}
+
+.nav-button:hover {
+    opacity: 0.9;
+}

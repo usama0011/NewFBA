@@ -1,0 +1,129 @@
+.column-selector-container {
+  display: flex;
+  position: relative;
+}
+
+.column-selector-menu {
+  width: 250px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.column-selector-group {
+  margin-bottom: 15px;
+}
+
+.column-selector-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.column-selector-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.column-selector-item:hover {
+  background-color: #f0f0f0;
+}
+
+.column-selector-item input[type="radio"] {
+  margin-right: 8px;
+}
+
+.column-active {
+  background-color: #e1edf8;
+  color: black;
+}
+
+.column-selector-hover {
+  position: absolute;
+  left: -320px; /* Appear on the left side */
+  top: 0;
+  width: 300px;
+  padding: 10px;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.column-selector-hover h4 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #007bff;
+}
+
+.column-selector-hover ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.column-selector-hover li {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.column-selector-actions {
+  margin-top: 15px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.action-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  cursor: pointer;
+  color: #007bff;
+  transition: color 0.2s ease;
+}
+
+.action-item:hover {
+  color: #0056b3;
+}
+
+.chevron-right-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.customize-columns-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.customize-columns-btn:hover {
+  background-color: #0056b3;
+}
+
+.customize-icon {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+}

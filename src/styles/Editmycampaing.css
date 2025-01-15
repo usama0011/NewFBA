@@ -1,0 +1,117 @@
+.edit-campaign-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.edit-campaign-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.edit-campaign-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-campaign-form label {
+  margin-bottom: 10px;
+}
+
+.edit-campaign-form input[type="text"],
+.edit-campaign-form input[type="number"],
+.edit-campaign-form input[type="date"],
+.edit-campaign-form input[type="checkbox"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.edit-campaign-form input[type="checkbox"] {
+  width: auto;
+}
+
+.edit-campaign-form button {
+  padding: 10px 15px;
+  margin-top: 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.edit-campaign-form button[disabled] {
+  background-color: #ccc;
+}
+
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-i8HGz.style-i8HGz {
+  width: 16px;
+  height: 16px;
+  mask-image: url("https://static.xx.fbcdn.net/rsrc.php/v3/yG/r/jg3IY981y5G.png?_nc_eui2=AeEsfbErE-2yozaGWEcKEJ3kH6L0MbDkZUYfovQxsORlRn0sloNfh-8hYhmVOxvkDKGQPZUgshq1nV_FugSV-ulD");
+  mask-position: -17px -152px;
+}
+
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-NqtPU.style-NqtPU {
+  background-image: url("https://static.xx.fbcdn.net/rsrc.php/v3/yk/r/Oq4hWev4Svf.png?_nc_eui2=AeG2lyq37GEDcFkRmYkH1ZOJgLXN1b8YjvWAtc3VvxiO9Vp9YLB0z_Z8TqA1KCu79Sz3pgINCUYmJblrXGSmVbuW");
+  background-position: 0px -2794px;
+  background-size: auto;
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-iBrpU.style-iBrpU {
+  width: 16px;
+  height: 16px;
+  mask-image: url("https://static.xx.fbcdn.net/rsrc.php/v3/yk/r/Oq4hWev4Svf.png?_nc_eui2=AeG2lyq37GEDcFkRmYkH1ZOJgLXN1b8YjvWAtc3VvxiO9Vp9YLB0z_Z8TqA1KCu79Sz3pgINCUYmJblrXGSmVbuW");
+  mask-position: 0px -2335px;
+}
+
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-TLZOk.style-TLZOk {
+  width: 16px;
+  height: 16px;
+  mask-image: url("https://static.xx.fbcdn.net/rsrc.php/v3/yk/r/Oq4hWev4Svf.png?_nc_eui2=AeG2lyq37GEDcFkRmYkH1ZOJgLXN1b8YjvWAtc3VvxiO9Vp9YLB0z_Z8TqA1KCu79Sz3pgINCUYmJblrXGSmVbuW");
+  mask-position: 0px -3253px;
+}
+
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-Czz9T.style-Czz9T {
+  background-image: url("https://static.xx.fbcdn.net/rsrc.php/v3/yS/r/Y2CLjbmxPzF.png?_nc_eui2=AeEieLLjQZbfvxwLW5Mj_UlgSnhl3fpgUNJKeGXd-mBQ0nOUgMpaxepQnn2Ctd1uBWCd2NPhDNWzXl19XI7UavuW");
+  background-position: 0px -117px;
+  background-size: auto;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-2cfKe.style-2cfKe {
+  background-image: url("https://static.xx.fbcdn.net/rsrc.php/v3/yM/r/aHtCZUeO70W.png?_nc_eui2=AeEZcEzMk3d15wnG2IIp6cWpNA8_0j16cHk0Dz_SPXpweZHwbxncAY629b48QCqciHUV9Xwp9gplWZWa3C__-b0_");
+  background-position: -336px -2100px;
+  background-size: auto;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
+#style-voFcj.style-voFcj {
+  background-image: url("https://static.xx.fbcdn.net/rsrc.php/v3/yS/r/Y2CLjbmxPzF.png?_nc_eui2=AeEieLLjQZbfvxwLW5Mj_UlgSnhl3fpgUNJKeGXd-mBQ0nOUgMpaxepQnn2Ctd1uBWCd2NPhDNWzXl19XI7UavuW");
+  background-position: 0px -117px;
+  background-size: auto;
+  width: 20px;
+  height: 20px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
