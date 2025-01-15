@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import "../styles/CompaingsData.css";
 import ColoumSelector from "./ColoumSelector";
 import { useNavigate } from "react-router-dom";
+import PlacementBox from "./PlacementBox";
 
 const CompaingsData = ({ campaigns, loading }) => {
   const [showMenu, SetShowMenu] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("Performance");
+  const [showPlacementBox, setShowPlacementBox] = useState(false);
   const navigate = useNavigate();
   const handleShowSlector = () => {
-    SetShowMenu(true);
+    SetShowMenu((pre) => !pre);
   };
   const fieldMapping = {
     "Ad set name": "adname",
@@ -113,9 +115,6 @@ const CompaingsData = ({ campaigns, loading }) => {
   };
   const [showPerformanceRows, setShowPerformanceRows] = useState(false);
 
-  const handleCheckboxChange = (e) => {
-    setShowPerformanceRows(e.target.checked);
-  };
   const getColumnStyles = (colName, customWidths = {}) => {
     return { width: `${customWidths[colName] || 150}px` };
   };
@@ -718,7 +717,11 @@ const CompaingsData = ({ campaigns, loading }) => {
                       </div>
                     </span>
                   </span>
-                  <span class="" id="ads_manager_breakdown_dropdown_id">
+                  <span
+                    onClick={() => setShowPlacementBox((prev) => !prev)}
+                    class=""
+                    id="ads_manager_breakdown_dropdown_id"
+                  >
                     <span
                       class=" "
                       data-tracked="true"
@@ -746,7 +749,7 @@ const CompaingsData = ({ campaigns, loading }) => {
                                 ></div>
                               </div>
                               <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs x1iyjqo2">
-                                Breakdown
+                                Breakdown {showPerformanceRows && `1 Selected`}
                               </div>
                               <div
                                 class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
@@ -919,14 +922,35 @@ const CompaingsData = ({ campaigns, loading }) => {
               top: "45px",
               left: "1100px",
               zIndex: 999,
+              textAlign: "left",
             }}
           >
             <ColoumSelector />
           </div>
         )}
+        {showPlacementBox && (
+          <div
+            style={{
+              position: "absolute",
+              top: "48px",
+              left: "1180px",
+              zIndex: 999,
+              textAlign: "left",
+            }}
+          >
+            <div className="placeboxdiv">
+              <PlacementBox
+                showPlacementBox={showPlacementBox}
+                setShowPlacementBox={setShowPlacementBox}
+                showPerformanceRows={showPerformanceRows}
+                setShowPerformanceRows={setShowPerformanceRows}
+              />
+            </div>
+          </div>
+        )}
       </div>
       <div className="vCampaign-container">
-        <select
+        {/* <select
           className="vCampaign-select"
           onChange={handleChange}
           value={selectedCategory}
@@ -936,16 +960,9 @@ const CompaingsData = ({ campaigns, loading }) => {
               {category}
             </option>
           ))}
-        </select>
+        </select> */}
         {/* Checkbox for Performance */}
-        <label>
-          <input
-            type="checkbox"
-            checked={showPerformanceRows}
-            onChange={handleCheckboxChange}
-          />
-          Performance
-        </label>
+
         <div className="vCampaign-scrollable">
           <table className="vCampaign-table">
             <thead style={{ backgroundColor: "white" }}>

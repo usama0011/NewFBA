@@ -8,7 +8,7 @@ import "../styles/ColumnSelector.css";
 
 const ColumnSelector = () => {
   const initialCategories = {
-    RecentlyUsed: ["Performance", "Engagement", "Video engagement"],
+    "Recently used": ["Performance", "Engagement", "Video engagement"],
     Popular: ["Performance and clicks", "Delivery"],
   };
 

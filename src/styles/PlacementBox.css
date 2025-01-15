@@ -1,0 +1,107 @@
+.placementnew-container {
+  width: 200px;
+  height: 380px;
+  overflow-y: scroll;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.placementnew-header {
+  margin-bottom: 16px;
+}
+
+.placementnew-searchbar {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  width: 63%;
+}
+
+.placementnew-searchicon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  color: #aaa;
+}
+
+.placementnew-searchinput {
+  width: 100%;
+  border: none;
+  outline: none;
+}
+
+.placementnew-section {
+  margin-bottom: 16px;
+}
+
+.placementnew-section-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.placementnew-infoicon {
+  width: 16px;
+  height: 16px;
+  color: black;
+  margin-left: 4px;
+}
+
+.placementnew-item {
+  display: flex;
+  position: relative;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.placementnew-item input {
+  margin-right: 8px;
+}
+.placementnew-item label {
+  font-weight: normal;
+  color: rgb(49, 49, 49);
+  font-size: 14px;
+}
+.placementnew-subsection {
+  margin-top: 16px;
+}
+
+.placementnew-subitem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.placementnew-chevronicon {
+  width: 22px;
+  height: 22px;
+  color: black;
+}
+
+.uniquecheckboxForPlacement:checked::after {
+  content: ""; /* Remove the checkmark symbol */
+  background-image: url("https://cdn-icons-png.freepik.com/512/9136/9136003.png"); /* Add the image as background */
+  background-size: contain; /* Make sure the image fits within the element */
+  background-repeat: no-repeat; /* Prevent image repetition */
+  width: 18px; /* Set width for the tick */
+  height: 18px; /* Set height for the tick */
+  position: absolute; /* Position it inside the checkbox */
+  left: 6px; /* Adjust horizontal position */
+  top: 5px; /* Adjust vertical position */
+}
+
+/* Optional: Keep the border color #499BCF when checked */
+.uniquecheckboxForPlacement:checked {
+  border-color: #499bcf;
+}
