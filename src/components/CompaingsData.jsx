@@ -171,6 +171,14 @@ const CompaingsData = ({ campaigns, loading }) => {
   const handleViewEdit = (id) => {
     navigate(`/editcampaing/${id}`);
   };
+  const [hoveredRow, setHoveredRow] = useState(null);
+  const handleMouseEnter = (index) => {
+    setHoveredRow(index); // Set the hovered row index
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredRow(null); // Clear the hovered row index
+  };
   return (
     <div>
       <div
@@ -1352,7 +1360,14 @@ const CompaingsData = ({ campaigns, loading }) => {
             <tbody>
               {campaigns.map((campaign, index) => (
                 <React.Fragment key={index}>
-                  <tr>
+                  <tr
+                    key={index}
+                    onMouseEnter={() => handleMouseEnter(index)}
+                    onMouseLeave={handleMouseLeave}
+                    style={{
+                      position: "relative",
+                    }}
+                  >
                     <td
                       style={{
                         position: "sticky", // Make the column sticky
@@ -1469,127 +1484,21 @@ const CompaingsData = ({ campaigns, loading }) => {
                                 </a>
                               </div>
                             </div>
-                            <div data-visualcompletion="ignore" class="">
-                              <div class="x1lliihq">
-                                <div id="style-NvCVa" class="style-NvCVa">
-                                  <div class="x78zum5 x6ikm8r x10wlt62 x1n2onr6">
-                                    <div class="_9p_z">
-                                      <div class="_9p_y" role="toolbar">
-                                        <div class="x78zum5 x2lwn1j xeuugli">
-                                          <span
-                                            class=" "
-                                            data-tracked="true"
-                                            data-interactable="|mousedown||click|"
-                                          >
-                                            <a
-                                              aria-label="View Charts"
-                                              class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
-                                              href="#"
-                                            >
-                                              <span class="_3qjp">
-                                                <div class="x6s0dn4 x78zum5">
-                                                  <div class="xw3qccf x1gslohp">
-                                                    <i
-                                                      alt=""
-                                                      data-visualcompletion="css-img"
-                                                      class="img style-mBbvW"
-                                                      id="style-mBbvW"
-                                                    ></i>
-                                                  </div>
-                                                  <span
-                                                    onClick={() =>
-                                                      handleViewChart(
-                                                        campaign?._id
-                                                      )
-                                                    }
-                                                    class="ellipsis"
-                                                    data-tooltip-display="overflow"
-                                                  >
-                                                    View Charts
-                                                  </span>
-                                                </div>
-                                              </span>
-                                            </a>
-                                          </span>
-                                          <span
-                                            class=" "
-                                            data-tracked="true"
-                                            data-interactable="|mousedown||click|"
-                                          >
-                                            <a
-                                              aria-label="Edit"
-                                              class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
-                                              href="#"
-                                            >
-                                              <span class="_3qjp">
-                                                <div class="x6s0dn4 x78zum5">
-                                                  <div class="xw3qccf x1gslohp">
-                                                    <i
-                                                      alt=""
-                                                      data-visualcompletion="css-img"
-                                                      class="img style-RHBeZ"
-                                                      id="style-RHBeZ"
-                                                    ></i>
-                                                  </div>
-                                                  <span
-                                                    onClick={() =>
-                                                      handleViewEdit(
-                                                        campaign?._id
-                                                      )
-                                                    }
-                                                    class="ellipsis"
-                                                    data-tooltip-display="overflow"
-                                                  >
-                                                    Edit
-                                                  </span>
-                                                </div>
-                                              </span>
-                                            </a>
-                                          </span>
-                                          <span
-                                            class=" "
-                                            data-tracked="true"
-                                            data-interactable="|mousedown||click|"
-                                          >
-                                            <a
-                                              aria-label="Duplicate"
-                                              class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
-                                              href="#"
-                                            >
-                                              <span class="_3qjp">
-                                                <div class="x6s0dn4 x78zum5">
-                                                  <div class="xw3qccf x1gslohp">
-                                                    <i
-                                                      alt=""
-                                                      data-visualcompletion="css-img"
-                                                      class="img style-eGddb"
-                                                      id="style-eGddb"
-                                                    ></i>
-                                                  </div>
-                                                  <span
-                                                    class="ellipsis"
-                                                    data-tooltip-display="overflow"
-                                                  >
-                                                    Duplicate
-                                                  </span>
-                                                </div>
-                                              </span>
-                                            </a>
-                                          </span>
-                                          <span id="ads_manager_dcp_updated_inline_entry_point_nux39">
-                                            <div>
-                                              <div
-                                                data-visualcompletion="ignore"
-                                                class=""
-                                              ></div>
-                                            </div>
+                            {(hoveredRow === index || index === 0) && (
+                              <div data-visualcompletion="ignore" class="">
+                                <div class="x1lliihq">
+                                  <div id="style-NvCVa" class="style-NvCVa">
+                                    <div class="x78zum5 x6ikm8r x10wlt62 x1n2onr6">
+                                      <div class="_9p_z">
+                                        <div class="_9p_y" role="toolbar">
+                                          <div class="x78zum5 x2lwn1j xeuugli">
                                             <span
                                               class=" "
                                               data-tracked="true"
                                               data-interactable="|mousedown||click|"
                                             >
                                               <a
-                                                aria-label="Compare"
+                                                aria-label="View Charts"
                                                 class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
                                                 href="#"
                                               >
@@ -1599,54 +1508,162 @@ const CompaingsData = ({ campaigns, loading }) => {
                                                       <i
                                                         alt=""
                                                         data-visualcompletion="css-img"
-                                                        class="img style-7Nnza"
-                                                        id="style-7Nnza"
+                                                        class="img style-mBbvW"
+                                                        id="style-mBbvW"
                                                       ></i>
                                                     </div>
+                                                    <span
+                                                      onClick={() =>
+                                                        handleViewChart(
+                                                          campaign?._id
+                                                        )
+                                                      }
+                                                      class="ellipsis"
+                                                      data-tooltip-display="overflow"
+                                                    >
+                                                      View Charts
+                                                    </span>
                                                   </div>
                                                 </span>
                                               </a>
                                             </span>
-                                          </span>
+                                            <span
+                                              class=" "
+                                              data-tracked="true"
+                                              data-interactable="|mousedown||click|"
+                                            >
+                                              <a
+                                                aria-label="Edit"
+                                                class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                                href="#"
+                                              >
+                                                <span class="_3qjp">
+                                                  <div class="x6s0dn4 x78zum5">
+                                                    <div class="xw3qccf x1gslohp">
+                                                      <i
+                                                        alt=""
+                                                        data-visualcompletion="css-img"
+                                                        class="img style-RHBeZ"
+                                                        id="style-RHBeZ"
+                                                      ></i>
+                                                    </div>
+                                                    <span
+                                                      onClick={() =>
+                                                        handleViewEdit(
+                                                          campaign?._id
+                                                        )
+                                                      }
+                                                      class="ellipsis"
+                                                      data-tooltip-display="overflow"
+                                                    >
+                                                      Edit
+                                                    </span>
+                                                  </div>
+                                                </span>
+                                              </a>
+                                            </span>
+                                            <span
+                                              class=" "
+                                              data-tracked="true"
+                                              data-interactable="|mousedown||click|"
+                                            >
+                                              <a
+                                                aria-label="Duplicate"
+                                                class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                                href="#"
+                                              >
+                                                <span class="_3qjp">
+                                                  <div class="x6s0dn4 x78zum5">
+                                                    <div class="xw3qccf x1gslohp">
+                                                      <i
+                                                        alt=""
+                                                        data-visualcompletion="css-img"
+                                                        class="img style-eGddb"
+                                                        id="style-eGddb"
+                                                      ></i>
+                                                    </div>
+                                                    <span
+                                                      class="ellipsis"
+                                                      data-tooltip-display="overflow"
+                                                    >
+                                                      Duplicate
+                                                    </span>
+                                                  </div>
+                                                </span>
+                                              </a>
+                                            </span>
+                                            <span id="ads_manager_dcp_updated_inline_entry_point_nux39">
+                                              <div>
+                                                <div
+                                                  data-visualcompletion="ignore"
+                                                  class=""
+                                                ></div>
+                                              </div>
+                                              <span
+                                                class=" "
+                                                data-tracked="true"
+                                                data-interactable="|mousedown||click|"
+                                              >
+                                                <a
+                                                  aria-label="Compare"
+                                                  class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                                  href="#"
+                                                >
+                                                  <span class="_3qjp">
+                                                    <div class="x6s0dn4 x78zum5">
+                                                      <div class="xw3qccf x1gslohp">
+                                                        <i
+                                                          alt=""
+                                                          data-visualcompletion="css-img"
+                                                          class="img style-7Nnza"
+                                                          id="style-7Nnza"
+                                                        ></i>
+                                                      </div>
+                                                    </div>
+                                                  </span>
+                                                </a>
+                                              </span>
+                                            </span>
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
-                                  </div>
-                                  <div
-                                    aria-busy="false"
-                                    aria-controls="js_ap5"
-                                    aria-expanded="false"
-                                    aria-haspopup="menu"
-                                    class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1t137rt x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xo1l8bm xbsr9hj x1v911su xurb0ha x1sxyh0 xexx8yu x18d9i69"
-                                    role="button"
-                                    tabindex="0"
-                                  >
-                                    <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
-                                      <div class="x78zum5">
-                                        <div
-                                          class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
-                                          data-sscoverage-ignore="true"
-                                        >
-                                          Open Drop-down
-                                        </div>
-                                        <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                    <div
+                                      aria-busy="false"
+                                      aria-controls="js_ap5"
+                                      aria-expanded="false"
+                                      aria-haspopup="menu"
+                                      class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1t137rt x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xo1l8bm xbsr9hj x1v911su xurb0ha x1sxyh0 xexx8yu x18d9i69"
+                                      role="button"
+                                      tabindex="0"
+                                    >
+                                      <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                                        <div class="x78zum5">
                                           <div
-                                            class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
-                                            role="presentation"
+                                            class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                            data-sscoverage-ignore="true"
                                           >
-                                            <div
-                                              class="xtwfq29 style-xc1wS"
-                                              id="style-xc1wS"
-                                            ></div>
+                                            Open Drop-down
                                           </div>
-                                          ​
+                                          <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                            <div
+                                              class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                              role="presentation"
+                                            >
+                                              <div
+                                                class="xtwfq29 style-xc1wS"
+                                                id="style-xc1wS"
+                                              ></div>
+                                            </div>
+                                            ​
+                                          </div>
                                         </div>
-                                      </div>
-                                    </span>
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
                           </div>
                         </div>
                       </div>

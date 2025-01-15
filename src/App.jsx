@@ -197,7 +197,6 @@ const App = () => {
           },
         }
       );
-      console.log("Response:", response);
       setCampaigns(response.data);
     } catch (err) {
       setError("Error fetching campaigns");
@@ -246,7 +245,6 @@ const App = () => {
     setSearchQuery(value);
     setShowSearchSuggestions(value.trim().length > 0); // Show suggestions only if the input is not empty
   };
-  console.log(searchQuery);
   // const filteredCampaigns = campaings?.filter((campaign) =>
   //   campaign.campaingname.toLowerCase().includes(searchQuery.toLowerCase())
   // );
@@ -2993,7 +2991,7 @@ const App = () => {
                                               style={{
                                                 position: "absolute",
                                                 top: "100px",
-                                                zIndex: "999",
+                                                zIndex: "3000",
                                                 left: "55px",
                                                 backgroundColor: "",
                                               }}

@@ -1,2229 +1,2663 @@
 import React, { useEffect, useState } from "react";
-import "../styles/Ads.css";
-import { Switch, Table } from "antd";
-import axios from "axios";
-import { ChevronRightIcon } from "@heroicons/react/24/solid";
+import "../styles/CompaingsData.css";
+import ColoumSelector from "./ColoumSelector";
+import { useNavigate } from "react-router-dom";
+import PlacementBox from "./PlacementBox";
 
-import {
-  BarChartOutlined,
-  CaretDownOutlined,
-  FileTextOutlined,
-  PushpinOutlined,
-} from "@ant-design/icons";
-import EditImage from "../assets/edit.png";
-import { Link } from "react-router-dom";
-const Ads = ({ campaigns, loading, error }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isHoveredPeformance, setIsHoveredPerformance] = useState(false);
-  const [ishoverEngagement, setIsHoveredEngagement] = useState(false);
-  const [ishoverDelivery, setIsHoveredDelivery] = useState(false);
-  const [ishovervedioengagement, setIsHoveredvedioengagement] = useState(false);
-  const [showcustomizedbanner, setShowCustumizeBanner] = useState(false);
-  const [showPerformanceAndClicks, setShowPerformanceAndClicks] =
-    useState("performance");
-  // Event handlers to toggle state
-  const handleMouseEnter = () => {
-    setIsHovered(true);
+const Ads = ({ campaigns, loading }) => {
+  const [showMenu, SetShowMenu] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("Performance");
+  const [showPlacementBox, setShowPlacementBox] = useState(false);
+  const navigate = useNavigate();
+  const handleShowSlector = () => {
+    SetShowMenu((pre) => !pre);
+  };
+  const fieldMapping = {
+    "Ad set name": "adname",
+    "Bid strategy": "Bidstrategy",
+    Budget: "Budget",
+    "Last significant edit": "lastSignificent",
+    "Attribution setting": "Attributionsetting",
+    Results: "Results",
+    Reach: "Reach",
+    "Link clicks": "LinksClicks",
+    Impressions: "Impressions",
+    "Cost per result": "Costperresult",
+    "Amount spent": "Amountspent",
+    Ends: "Ends",
+    "Page engagement": "PageEngagement",
+    "Post reactions": "PostReactions",
+    "Post comments": "PostComments",
+    "Post saves": "PostSaves",
+    "Post shares": "PostShares",
+    "Follows or likes": "Postfollowslikes",
+    "CPC (cost per link click)": "CPC",
+    "CTR (link click-through rate)": "CTR",
+    "2-second continuous video plays": "twosecondvideoplay",
+    "Cost per 2-second continuous video play": "costpertwosecondvideoplay",
+    "3-second video plays": "threesecondvideoplay",
+    "Cost per 3-second video play": "costperthreesecondvideoplay",
+    ThruPlays: "thruplays",
+    "Cost per ThruPlay": "costperthruplay",
+    "Video plays at 25%": "videoplaytwentyfivepercent",
+    "Video plays at 50%": "videoplayfiftypercent",
+    "Video plays at 75%": "videoplayseventyfivepercent",
+    "Video plays at 95%": "videoplayninetyfivepercent",
+    "Video plays at 100%": "videoplayhundredpercent",
+    "CPM (cost per 1,000 impressions)": "CPM",
+    "Clicks (all)": "clicksAll",
+    "CTR (all)": "CTRALL",
+    "CPC (all)": "CPCAll",
+  };
+
+  const categories = {
+    Performance: [
+      "Bid strategy",
+      "Budget",
+      "Attribution setting",
+      "Results",
+      "Reach",
+      "Impressions",
+      "Cost per result",
+      "Amount spent",
+      "Ends",
+    ],
+    Engagement: [
+      "Page engagement",
+      "Post reactions",
+      "Post comments",
+      "Post saves",
+      "Post shares",
+      "Follows or likes",
+      "CPC (cost per link click)",
+    ],
+    "Video Engagement": [
+      "Impressions",
+      "2-second continuous video plays",
+      "Cost per 2-second continuous video play",
+      "3-second video plays",
+      "Cost per 3-second video play",
+      "ThruPlays",
+      "Cost per ThruPlay",
+      "Reach",
+      "Amount spent",
+      "Video plays at 25%",
+      "Video plays at 50%",
+      "Video plays at 75%",
+      "Video plays at 95%",
+      "Video plays at 100%",
+      "Video plays",
+    ],
+    "Performance and Clicks": [
+      "Attribution setting",
+      "Results",
+      "Reach",
+      "Cost per result",
+      "Budget",
+      "Amount spent",
+      "Ends",
+      "Impressions",
+      "CPM (cost per 1,000 impressions)",
+      "Link clicks",
+      "CPC (cost per link click)",
+      "CTR (link click-through rate)",
+      "Clicks (all)",
+      "CTR (all)",
+      "CPC (all)",
+    ],
+    Delivery: [
+      "Reach",
+      "Frequency",
+      "Cost per 1,000 Accounts Centre accounts reached",
+      "Impressions",
+      "CPM (cost per 1,000 impressions)",
+    ],
+  };
+  const [showPerformanceRows, setShowPerformanceRows] = useState(false);
+
+  const getColumnStyles = (colName, customWidths = {}) => {
+    return { width: `${customWidths[colName] || 150}px` };
+  };
+
+  const handleChange = (e) => {
+    setSelectedCategory(e.target.value);
+  };
+  const totalResults = campaigns.reduce(
+    (sum, record) => sum + (Number(record?.Results) || 0),
+    0
+  );
+  const totalReach = campaigns?.reduce(
+    (sum, record) => sum + (Number(record.Reach) || 0),
+    0
+  );
+  const totalImpressions = campaigns?.reduce(
+    (sum, record) => sum + (Number(record.Impressions) || 0),
+    0
+  );
+
+  const totalAmountSpent = campaigns?.reduce(
+    (sum, record) => sum + (Number(record.Amountspent) || 0),
+    0
+  );
+
+  const tatalClicksAll = campaigns?.reduce(
+    (sum, record) => sum + (Number(record.clicksAll) || 0),
+    0
+  );
+  const LinkClicksAll = campaigns?.reduce(
+    (sum, record) => sum + (Number(record.LinksClicks) || 0),
+    0
+  );
+  const largestCostPerResult = campaigns?.length
+    ? totalAmountSpent / LinkClicksAll
+    : 0; // Handle case where campaigns? might be empty
+  const tatalCPMCost = campaigns?.length
+    ? (totalAmountSpent / totalImpressions) * 1000
+    : 0;
+  const totalCPCImpression = campaigns?.length
+    ? totalAmountSpent / LinkClicksAll
+    : 0;
+  const totalCTRImpression = campaigns?.length
+    ? (LinkClicksAll / totalImpressions) * 100
+    : 0; // Handle case where campaigns? might be empty
+  const totalCTRAll = campaigns?.length
+    ? (tatalClicksAll / totalImpressions) * 100
+    : 0; // Handle case where campaigns? might be empty
+  const totalCPCAll = campaigns?.length ? totalAmountSpent / tatalClicksAll : 0; // Handle case where campaigns? might be empty
+
+  const handleViewChart = (id) => {
+    navigate(`/editmainchart/${id}`);
+  };
+  const handleViewEdit = (id) => {
+    navigate(`/editcampaing/${id}`);
+  };
+  const [hoveredRow, setHoveredRow] = useState(null);
+  const handleMouseEnter = (index) => {
+    setHoveredRow(index); // Set the hovered row index
   };
 
   const handleMouseLeave = () => {
-    setIsHovered(false);
+    setHoveredRow(null); // Clear the hovered row index
   };
-  const handleMouseEnterPerformance = () => {
-    setIsHoveredPerformance(true);
-  };
-
-  const handleMouseLeavePerformance = () => {
-    setIsHoveredPerformance(false);
-  };
-  const handleCloseBannerPerformance = () => {
-    setShowPerformanceAndClicks("performance");
-    setShowCustumizeBanner(false);
-    setIsHovered(false);
-    setIsHoveredPerformance(false);
-    setIsHoveredEngagement(false);
-    setIsHoveredDelivery(false);
-    setIsHoveredvedioengagement(false);
-  };
-
-  const handleMouseEnterEngagement = () => {
-    setIsHoveredEngagement(true);
-  };
-
-  const handleMouseLeaveEngagement = () => {
-    setIsHoveredEngagement(false);
-  };
-  const handleCloseBannerPerformanceandClicks = () => {
-    setShowPerformanceAndClicks("performanceandclicks");
-    setShowCustumizeBanner(false);
-    setIsHovered(false);
-    setIsHoveredPerformance(false);
-    setIsHoveredEngagement(false);
-    setIsHoveredDelivery(false);
-    setIsHoveredvedioengagement(false);
-  };
-  const handleCloseBannerEngagement = () => {
-    setShowPerformanceAndClicks("engagement");
-    setShowCustumizeBanner(false);
-    setIsHoveredPerformance(false);
-    setIsHoveredEngagement(false);
-    setIsHoveredDelivery(false);
-    setIsHoveredvedioengagement(false);
-  };
-
-  // Delivery start here
-
-  const handleCloseBannerDelivery = () => {
-    setShowPerformanceAndClicks("delivery");
-    setShowCustumizeBanner(false);
-    setIsHoveredPerformance(false);
-    setIsHoveredEngagement(false);
-    setIsHoveredDelivery(false);
-    setIsHoveredvedioengagement(false);
-  };
-  const handleMouseEnterDelivery = () => {
-    setIsHoveredDelivery(true);
-  };
-  const handleMouseLeaveDelivery = () => {
-    setIsHoveredDelivery(false);
-  };
-
-  //Vedio end here
-  // Vedio start here
-
-  const handleCloseBannervideoEngagement = () => {
-    setShowPerformanceAndClicks("videoengagement");
-    setShowCustumizeBanner(false);
-    setIsHoveredPerformance(false);
-    setIsHoveredEngagement(false);
-    setIsHoveredDelivery(false);
-    setIsHoveredvedioengagement(false);
-  };
-  const handleMouseEntervideoEngagement = () => {
-    setIsHoveredvedioengagement(true);
-  };
-  const handleMouseLeavevideoEngagement = () => {
-    setIsHoveredvedioengagement(false);
-  };
-  const perfomarnaceandclicks = () => {
-    setShowPerformanceAndClicks("performanceandclicks");
-  };
-  const FormatNumbers = (entrynum) => {
-    let nf = new Intl.NumberFormat();
-    return nf.format(entrynum); // "1,234,567,890"
-  };
-  const [togglebutton, settogglebutton] = useState(false);
-
-  console.log(campaigns);
-  const truncateText = (text, charLimit = 30) => {
-    if (text?.length > charLimit) {
-      return text.slice(0, charLimit) + "...";
-    }
-    return text;
-  };
-  const columns = [
-    {
-      title: () => (
-        <input
-          style={{ width: "30px", height: "23px", border: "1px solid #f5f4f4" }}
-          type="checkbox"
-        />
-      ),
-      width: 50,
-      key: "checkbox",
-      fixed: "left",
-      render: () => (
-        <input
-          style={{ width: "30px", height: "23px", border: "1px solid #f5f4f4" }}
-          type="checkbox"
-        />
-      ),
-    },
-    {
-      title: "Off/On",
-      width: 70,
-      dataIndex: "currentSwitch",
-      key: "currentSwitch",
-      fixed: "left",
-      render: (text, record) => (
-        <div onClick={() => settogglebutton((prev) => !prev)}>
-          {record.currentSwitch === false ? (
-            <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x1gzqxud xbsr9hj x13dflua xxziih7 x12w9bfk x14qfxbe xexx8yu x4uap5 x18d9i69 xkhd6sd x15406qy snipcss-5XQZY">
-              <div class=""></div>
-              <div class="xw4jnvo x1qx5ct2 x12y6twl x1h45990 xzolkzo x12go9s9 x1rnf11y xprq8jg x13dflua x6o7n8i xxziih7 x12w9bfk x4s1yf2"></div>
-            </div>
-          ) : (
-            <div data-visualcompletion="ignore" class="">
+  return (
+    <div>
+      <div
+        style={{
+          backgroundColor: "white",
+          position: "relative",
+          margin: "0px 8px",
+        }}
+        class="_3c5b _7jnt snipcss-OGfjQ"
+        id="pe_toolbar"
+      >
+        <div class="x78zum5 x6ikm8r x10wlt62 x1n2onr6">
+          <div class="_9p_z">
+            <div class="_9p_y" role="toolbar">
               <div>
-                <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x19lwn94 x1c4vz4f">
-                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                    <input
-                      aria-checked="true"
-                      aria-label="On/Off"
-                      role="switch"
-                      aria-describedby="js_36"
-                      aria-labelledby="js_34"
-                      class="xjyslct x1ypdohk x5yr21d x17qophe xdj266r x11i5rnm xat24cr x1mh8g0r x1w3u9th x1t137rt x10l6tqk x13vifvy xh8yej3 x1vjfegm"
-                      id="js_35"
-                      type="checkbox"
-                      value="true"
-                      checked=""
-                    />
-                    <div class="x1n2onr6 xh8yej3">
-                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg xo1l8bm xbsr9hj x1k4ywey x13dflua xxziih7 x12w9bfk x14qfxbe xexx8yu x4uap5 x18d9i69 xkhd6sd x15406qy">
-                        <div class=""></div>
-                        <div class="xw4jnvo x1qx5ct2 x1h45990 xzolkzo x12go9s9 x1rnf11y xprq8jg x13dflua x6o7n8i xxziih7 x12w9bfk x1qsmy5i x1psfjxj"></div>
-                      </div>
-                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div>Ad</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "campainglink",
-      key: "campainglink",
-      fixed: "left",
-      width: 350,
-      render: (text, record) => (
-        <>
-          <div
-            style={{ display: "flex", alignItems: "center" }}
-            className="mainparentcontainer"
-          >
-            <div style={{ width: "35px", height: "32px", marginRight: "5px" }}>
-              <img
-                style={{ width: "100%", height: "100%", objectFit: "contain" }}
-                src={record.campaingImage}
-                alt=""
-              />
-            </div>
-            <div>
-              <div
-                style={{ overflow: "hidden" }}
-                className="campaign-name-cell"
-              >
-                <div
-                  style={{ display: "flex", alignItems: "center" }}
-                  className="campaign-name"
-                >
-                  <div class="_62i0 snipcss-9NrJ2">
-                    <div
-                      class="ellipsis _13is"
-                      data-hover="tooltip"
-                      data-tooltip-content="Promoting website: https://thesearchguide.xyz/cf/r/661b84e19cfeda0012066a3c?ad_id={{ad.id}}&amp;adset_id={{adset.id}}&amp;campaign_id..."
-                      data-tooltip-display="overflow"
-                      data-tooltip-position="above"
-                      data-tooltip-text-direction="auto"
-                      id="js_5hd"
+                <div class="_9p_y">
+                  <div class="_9p_y">
+                    <span
+                      class=" "
+                      data-tracked="true"
+                      data-interactable="|mousedown||click|"
                     >
-                      <div data-visualcompletion="ignore" class="xt0psk2"></div>
-                      <div class="xt0psk2 xmi5d70 x1fvot60 xo1l8bm xxio538 xbsr9hj">
-                        <span class="_3dfi _3dfj">
-                          {truncateText(text, 40)}
+                      <span
+                        class=" "
+                        data-tracked="true"
+                        data-interactable="|mousedown||click|"
+                      >
+                        <div class="x3nfvp2 x193iq5w xxymvpz" role="none">
+                          <div
+                            aria-busy="false"
+                            class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1t137rt x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xo1l8bm x140t73q xqkc6xh x1y1aw1k xwib8y2 x1pi30zi x1ye3gou"
+                            role="button"
+                            tabindex="0"
+                          >
+                            <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                              <div class="x78zum5">
+                                <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                  <div class="x3nfvp2 x2lah0s x1c4vz4f">
+                                    <i
+                                      alt=""
+                                      data-visualcompletion="css-img"
+                                      class="img style-nZWwK"
+                                      id="style-nZWwK"
+                                    ></i>
+                                  </div>
+                                  <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs">
+                                    Create
+                                  </div>
+                                </div>
+                              </div>
+                            </span>
+                          </div>
+                        </div>
+                      </span>
+                    </span>
+                    <div id="DUPLICATE_BUTTON_ID">
+                      <div
+                        class="x3oybdh xuxw1ft x1iknuni xw9jwym x1e2iszw xg0tal0 x3nfvp2 x1lcm9me x1yr5g0i xrt01vj x10y3i5r x193iq5w xeuugli"
+                        role="group"
+                      >
+                        <div
+                          aria-busy="false"
+                          aria-disabled="true"
+                          class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1h6gzvc x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xtpvj6k xaatb59 x1qgsegg xo1l8bm x1v911su xis6omg x1y1aw1k xwib8y2 x1ye3gou xn6708d style-PJdyq"
+                          role="button"
+                          tabindex="-1"
+                          id="style-PJdyq"
+                        >
+                          <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                            <div class="x78zum5">
+                              <div
+                                class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                data-sscoverage-ignore="true"
+                              >
+                                Duplicate
+                              </div>
+                              <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                <div
+                                  class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                  role="presentation"
+                                >
+                                  <div
+                                    class="xtwfq29 style-yQRJS"
+                                    id="style-yQRJS"
+                                  ></div>
+                                </div>
+                                ​
+                              </div>
+                            </div>
+                          </span>
+                        </div>
+                        <div class="x1rg5ohu x39eecv">
+                          <div
+                            aria-busy="false"
+                            aria-controls="js_gpb"
+                            aria-disabled="true"
+                            aria-expanded="false"
+                            aria-haspopup="menu"
+                            class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1h6gzvc x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xtpvj6k xaatb59 x1qgsegg xo1l8bm x1v911su xis6omg x1y1aw1k xwib8y2 x1ye3gou xn6708d style-zoSo5"
+                            role="button"
+                            tabindex="-1"
+                            id="style-zoSo5"
+                          >
+                            <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                              <div class="x78zum5">
+                                <div
+                                  class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                  data-sscoverage-ignore="true"
+                                >
+                                  Open Drop-down
+                                </div>
+                                <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk x1nhvcw1 xh8yej3">
+                                  ​
+                                  <div
+                                    class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
+                                    role="presentation"
+                                  >
+                                    <div
+                                      class="xtwfq29 style-JBOKE"
+                                      id="style-JBOKE"
+                                    ></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <span
+                      class=" "
+                      data-tracked="true"
+                      data-interactable="|mousedown||click|"
+                    >
+                      <div
+                        class="x3oybdh xuxw1ft x1iknuni xw9jwym x1e2iszw xg0tal0 x3nfvp2 x1lcm9me x1yr5g0i xrt01vj x10y3i5r x193iq5w xeuugli"
+                        role="group"
+                      >
+                        <div
+                          aria-busy="false"
+                          class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1h6gzvc x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xtpvj6k xaatb59 x1qgsegg xo1l8bm x1v911su xis6omg x1y1aw1k xwib8y2 x1pi30zi x1ye3gou style-TbWZP"
+                          role="button"
+                          tabindex="-1"
+                          aria-disabled="true"
+                          id="style-TbWZP"
+                        >
+                          <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                            <div class="x78zum5">
+                              <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                <div
+                                  class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                  role="presentation"
+                                >
+                                  <div
+                                    class="xtwfq29 style-dAwfI"
+                                    id="style-dAwfI"
+                                  ></div>
+                                </div>
+                                <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs">
+                                  Edit
+                                </div>
+                              </div>
+                            </div>
+                          </span>
+                        </div>
+                        <div class="x1rg5ohu x39eecv">
+                          <div
+                            aria-busy="false"
+                            aria-controls="js_4nm"
+                            aria-expanded="false"
+                            aria-haspopup="menu"
+                            class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1h6gzvc x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xtpvj6k xaatb59 x1qgsegg xo1l8bm x1v911su xis6omg x1y1aw1k xwib8y2 x1ye3gou xn6708d style-WrMIN"
+                            role="button"
+                            tabindex="-1"
+                            aria-disabled="true"
+                            id="style-WrMIN"
+                          >
+                            <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                              <div class="x78zum5">
+                                <div
+                                  class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                  data-sscoverage-ignore="true"
+                                >
+                                  Edit
+                                </div>
+                                <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk x1nhvcw1 xh8yej3">
+                                  ​
+                                  <div
+                                    class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
+                                    role="presentation"
+                                  >
+                                    <div
+                                      class="xtwfq29 style-2C93o"
+                                      id="style-2C93o"
+                                    ></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </span>
+                    <div class="x3nfvp2 x193iq5w xxymvpz" role="none">
+                      <div
+                        aria-busy="false"
+                        class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1pi30zi x1ye3gou"
+                        role="button"
+                        tabindex="0"
+                      >
+                        <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                          <div class="x78zum5">
+                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                              <div
+                                class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                role="presentation"
+                              >
+                                <div
+                                  class="xtwfq29 style-TEIqE"
+                                  id="style-TEIqE"
+                                ></div>
+                              </div>
+                              <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs">
+                                A/B test
+                              </div>
+                            </div>
+                          </div>
                         </span>
                       </div>
                     </div>
-                    <div data-visualcompletion="ignore" class="">
-                      <a
-                        aria-label="Edit"
-                        class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
-                        href="#"
-                        id="js_5oz"
+                    <div class="x3nfvp2 x193iq5w xxymvpz" role="none">
+                      <div
+                        aria-busy="false"
+                        aria-disabled="true"
+                        class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1h6gzvc x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xtpvj6k xaatb59 x1qgsegg xo1l8bm x1v911su xis6omg x1y1aw1k xwib8y2 x1ye3gou xn6708d"
+                        role="button"
+                        tabindex="-1"
                       >
-                        <div class="_5_6n">
-                          <span class="_5_6o"></span>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                  <img
-                    className="largetimagepenc"
-                    style={{ width: "10px", height: "10px", marginLeft: "3px" }}
-                    src={EditImage}
-                    alt=""
-                  />
-                </div>
-              </div>
-              <div className="hoverbuttonsmyspec">
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{ marginRight: "10px" }}>
-                    {" "}
-                    <BarChartOutlined
-                      style={{
-                        width: "12px",
-                        height: "12px",
-                        color: "black",
-                        marginRight: "3px",
-                      }}
-                    />
-                    <Link
-                      style={{ color: "unset" }}
-                      to={`/editmainchart/${record._id}`}
-                    >
-                      View Charts
-                    </Link>
-                  </div>
-                  <div style={{ marginRight: "10px" }}>
-                    <Link
-                      style={{ color: "unset" }}
-                      to={`/editcampaing/${record._id}`}
-                    >
-                      <img
-                        style={{
-                          width: "10px",
-                          height: "10px",
-                          marginRight: "3px",
-                        }}
-                        src={EditImage}
-                        alt=""
-                      />
-                      Edit
-                    </Link>
-                  </div>
-                  <div style={{ marginRight: "10px" }}>
-                    <FileTextOutlined style={{ marginRight: "3px" }} />
-                    Duplicate
-                  </div>
-
-                  <div style={{ marginRight: "10px" }}>
-                    <PushpinOutlined style={{ marginRight: "3px" }} />
-                    Pin
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div>Delivery</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "Delivery",
-      key: "Delivery",
-      width: 150,
-      render: (text) => (
-        <div className="campaign-name-cell">
-          <div
-            style={{ border: "none" }}
-            class="_1b33 snipcss-B7bFk tether-target tether-enabled tether-element-attached-bottom tether-abutted tether-abutted-top tether-target-attached-top tether-element-attached-right tether-target-attached-right"
-          >
-            <span>
-              <div class="ellipsis">
-                <div class="clearfix _ikh">
-                  <div class="_4bl7">
-                    <div class="x1yc453h x1kky2od x1y5rjcf">
-                      <i
-                        alt=""
-                        data-visualcompletion="css-img"
-                        class="img style-ftbBX"
-                        id="style-ftbBX"
-                      ></i>
-                    </div>
-                  </div>
-                  <div class="_4bl9">
-                    <span class="xmi5d70 x1fvot60 xo1l8bm xxio538 xbsr9hj xq9mrsl x1h4wwuj xeuugli">
-                      Active
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </span>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div>Ad set name</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "campaingname",
-      key: "campaingname",
-      width: 250,
-      render: (text) => (
-        <div className="campaign-name-cell">
-          <div
-            style={{ border: "none" }}
-            class="_1b33 ellipsis"
-            data-hover="tooltip"
-            data-tooltip-display="overflow"
-          >
-            <a
-              class="x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i x1yc453h xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj x1fcty0u x1lliihq"
-              data-hover="tooltip"
-              data-tooltip-display="overflow"
-              href="#"
-            >
-              {text}
-            </a>
-            <div data-visualcompletion="ignore" class="">
-              <div class="x1rg5ohu x67bb7w">
-                <span class="xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf xq9mrsl x1h4wwuj xeuugli">
-                  1 active ad
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-
-    {
-      title: "Bid Strategy",
-      dataIndex: "Bidstrategy",
-      key: "Bidstrategy",
-      width: 130,
-      render: (text) => (
-        <div class="snipcss-UtGF5">
-          <div
-            geotextcolor="value"
-            data-hover="tooltip"
-            data-tooltip-display="overflow"
-            data-tooltip-text-direction="auto"
-            class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
-          >
-            <span>
-              <div data-visualcompletion="ignore" class=""></div>
-              {text}
-            </span>
-          </div>
-          <div
-            class="ellipsis _1ha4"
-            data-hover="tooltip"
-            data-tooltip-display="overflow"
-            data-tooltip-text-direction="auto"
-          >
-            <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
-              Link clicks
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Budget",
-      dataIndex: "Budget",
-      key: "Budget",
-      width: 140,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {truncateText(text, 30)}
-        </div>
-      ),
-    },
-    {
-      title: "Last Significant Edit",
-      dataIndex: "lastSignificent",
-      key: "lastSignificent",
-      width: 120,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }}> {truncateText(text, 11)}</div>
-      ),
-    },
-    {
-      title: "Attribution Settings",
-      dataIndex: "Attributionsetting",
-      key: "Attributionsetting",
-      width: 120,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }}> {truncateText(text, 11)}</div>
-      ),
-    },
-    {
-      title: () => (
-        <div className="resulsconainer">
-          {" "}
-          <div>
-            <span
-              style={{ marginRight: "5px" }}
-              id="js_26j"
-              class="snipcss-1Co3h"
-            >
-              <i
-                alt=""
-                data-visualcompletion="css-img"
-                class="img style-JFqyS"
-                id="style-JFqyS"
-              ></i>
-            </span>
-            Results
-          </div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "Results",
-      key: "Results",
-      width: 120,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {FormatNumbers(text)}
-          <br />
-          <span style={{ fontSize: "12px", color: "gray" }}>Link clicks</span>
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div>Reach</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "Reach",
-      key: "Reach",
-      width: 150,
-      render: (text) => (
-        <div style={{ fontSize: "14px", textAlign: "right" }}>
-          {FormatNumbers(text)}
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div>Impressions</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "Impressions",
-      key: "Impressions",
-      width: 150,
-      render: (text) => (
-        <div style={{ fontSize: "14px", textAlign: "right" }}>
-          {FormatNumbers(text)}
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div style={{ padding: 0, margin: 0 }}>
-            Cost per <br /> results
-          </div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "Costperresult",
-      key: "Costperresult",
-      width: 150,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {FormatNumbers(text)}
-          <br />
-          <span
-            style={{ fontSize: "12px", color: "gray", whiteSpace: "nowrap" }}
-          >
-            Per link click
-          </span>
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div style={{ padding: 0, margin: 0 }}>Quality Ranking</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "qualityRanking",
-      key: "qualityRanking",
-      width: 150,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {text}
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div style={{ padding: 0, margin: 0 }}>Engagement rate ranking</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "engagementrateranking",
-      key: "engagementrateranking",
-      width: 210,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {text}
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div style={{ padding: 0, margin: 0 }}>Conversion rate ranking</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "conversionrateranking",
-      key: "conversionrateranking",
-      width: 200,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {text}
-        </div>
-      ),
-    },
-
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div style={{ padding: 0, margin: 0 }}>Amount Spend</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="red" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "Amountspent",
-      key: "Amountspent",
-      width: 150,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {FormatNumbers(text)}
-        </div>
-      ),
-    },
-    {
-      title: (
-        <div className="resulsconainer">
-          {" "}
-          <div style={{ padding: 0, margin: 0 }}>Ends</div>
-          <div>
-            <CaretDownOutlined style={{ color: "gray" }} color="blue" />
-          </div>{" "}
-        </div>
-      ),
-      dataIndex: "Ends",
-      key: "Ends",
-      width: 150,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {text}
-        </div>
-      ),
-    },
-
-    {
-      title: () => (
-        <i
-          alt="Customise columns..."
-          aria-label="Customise columns..."
-          data-visualcompletion="css-img"
-          class="img snipcss-saPsI style-kgHNC"
-          id="style-kgHNC"
-        >
-          <u>Customise columns...</u>
-        </i>
-      ),
-      dataIndex: "Plus",
-      key: "Plus",
-      width: 30,
-      render: (text) => (
-        <div style={{ fontSize: "14px" }} className="budygetcontainer">
-          {text}
-        </div>
-      ),
-    },
-  ];
-  // Calculate height based on campaigns length
-  const rowHeight = 60; // Approximate height of one row
-  const headerHeight = 60; // Approximate height of the header
-  const footerHeight = 60; // Approximate height of the footer
-
-  const maxHeight = 900; // Set a maximum table height
-
-  const calculatedHeight = Math.min(
-    campaigns.length * rowHeight + headerHeight + footerHeight,
-    maxHeight
-  );
-  return (
-    <div class="_3-9a style-5nd4I" id="style-5nd4I">
-      <div class="_2utz style-Seeed" id="style-Seeed">
-        <div class="_1hv5 style-voLCB" id="style-voLCB">
-          <div id="style-C85Qh" class="style-C85Qh">
-            <div class="_3c5b _7jnt" id="pe_toolbar">
-              <div class="x78zum5 x6ikm8r x10wlt62 x1n2onr6">
-                <div class="_9p_z">
-                  <div class="_3c-mro _7j-8dy">
-                    <div class="x78-k5m x6i-llv x10-p3v x1n-ebg">
-                      <div class="_9p-ozl">
-                        <div class="_9p-mlx">
-                          <div>
-                            <div class="_9p-mlx">
-                              <div class="_9p-mlx">
-                                <span>
-                                  <span>
-                                    <div class="x3n-f59 x19-22g xxy-2rh">
-                                      <div class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x1t-x6v x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn xo1-mec x14-1lb xas-1qp x1y-cz7 xwi-az6 x1p-fay x1y-fvp">
-                                        <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                          <div class="x78-k5m">
-                                            <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                              <div class="x3n-f59 x2l-x9n x1c-s9e">
-                                                <i
-                                                  class="borcb style-1FvAr"
-                                                  id="style-1FvAr"
-                                                ></i>
-                                              </div>
-                                              <div class="x1x-gir x1f-3w5 xk5-yrq xxi-osf x1h-z9p xux-rea x6i-llv x10-p3v xly-yd3 x1h-n1x xeu-5cs">
-                                                Create
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </span>
-                                </span>
-                                <div>
-                                  <div class="x3o-2lm xux-rea x1i-ehz xw9-lt2 xg0-r68 x3n-f59 x1l-avb x1y-bvg xrt-o8q x10-omn x19-22g xeu-5cs">
-                                    <div
-                                      class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1p-fay x1y-fvp style-FfghQ"
-                                      id="style-FfghQ"
-                                    >
-                                      <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                        <div class="x78-k5m">
-                                          <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                            <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                              <div
-                                                class="xtw-bqe style-mFT1E"
-                                                id="style-mFT1E"
-                                              ></div>
-                                            </div>
-                                            <div class="x1x-gir x1f-3w5 xk5-yrq xxi-osf x1h-z9p xux-rea x6i-llv x10-p3v xly-yd3 x1h-n1x xeu-5cs">
-                                              Duplicate
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </span>
-                                    </div>
-                                    <div class="x1r-1gm x39-os4">
-                                      <div
-                                        class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4 style-sI7MI"
-                                        id="style-sI7MI"
-                                      >
-                                        <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                          <div class="x78-k5m">
-                                            <div class="x1q-729 xjm-mwh x1y-zwe xcw-b3g x1j-rxo x39-os4 x6i-llv x10-p3v x10-k12 xux-rea x1i-gfe">
-                                              Open Drop-down
-                                            </div>
-                                            <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 x1n-ohs xh8-7rm">
-                                              ​
-                                              <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e x1g-ktz">
-                                                <div
-                                                  class="xtw-bqe style-6MTPS"
-                                                  id="style-6MTPS"
-                                                ></div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div></div>
-                                <span>
-                                  <div class="x3o-2lm xux-rea x1i-ehz xw9-lt2 xg0-r68 x3n-f59 x1l-avb x1y-bvg xrt-o8q x10-omn x19-22g xeu-5cs">
-                                    <div
-                                      class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1p-fay x1y-fvp style-ocmvQ"
-                                      id="style-ocmvQ"
-                                    >
-                                      <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                        <div class="x78-k5m">
-                                          <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                            <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                              <div
-                                                class="xtw-bqe style-S9GaE"
-                                                id="style-S9GaE"
-                                              ></div>
-                                            </div>
-                                            <div class="x1x-gir x1f-3w5 xk5-yrq xxi-osf x1h-z9p xux-rea x6i-llv x10-p3v xly-yd3 x1h-n1x xeu-5cs">
-                                              Edit
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </span>
-                                    </div>
-                                    <div class="x1r-1gm x39-os4">
-                                      <div
-                                        class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4 style-kwi9O"
-                                        id="style-kwi9O"
-                                      >
-                                        <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                          <div class="x78-k5m">
-                                            <div class="x1q-729 xjm-mwh x1y-zwe xcw-b3g x1j-rxo x39-os4 x6i-llv x10-p3v x10-k12 xux-rea x1i-gfe">
-                                              Edit
-                                            </div>
-                                            <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 x1n-ohs xh8-7rm">
-                                              ​
-                                              <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e x1g-ktz">
-                                                <div
-                                                  class="xtw-bqe style-kqMMq"
-                                                  id="style-kqMMq"
-                                                ></div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </span>
-                                <div class="x3n-f59 x19-22g xxy-2rh">
-                                  <div class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1p-fay x1y-fvp">
-                                    <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                      <div class="x78-k5m">
-                                        <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                          <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                            <div
-                                              class="xtw-bqe style-aVvrT"
-                                              id="style-aVvrT"
-                                            ></div>
-                                          </div>
-                                          <div class="x1x-gir x1f-3w5 xk5-yrq xxi-osf x1h-z9p xux-rea x6i-llv x10-p3v xly-yd3 x1h-n1x xeu-5cs">
-                                            A/B test
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </span>
-                                  </div>
-                                </div>
-                                <div class="x3n-f59 x19-22g xxy-2rh">
-                                  <div class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x1h-vob x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn xtp-4qp xaa-nrq x1q-vbb xo1-mec x1v-7i1 xis-j6e x1y-cz7 xwi-az6 x1y-fvp xn6-yn4">
-                                    <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                      <div class="x78-k5m">
-                                        <div class="x1q-729 xjm-mwh x1y-zwe xcw-b3g x1j-rxo x39-os4 x6i-llv x10-p3v x10-k12 xux-rea x1i-gfe">
-                                          You haven't copied any items.
-                                        </div>
-                                        <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                          <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                            <div
-                                              class="xtw-bqe style-sLPyn"
-                                              id="style-sLPyn"
-                                            ></div>
-                                          </div>
-                                          ​
-                                        </div>
-                                      </div>
-                                    </span>
-                                  </div>
-                                </div>
-                                <div class="x3o-2lm xux-rea x1i-ehz xw9-lt2 xg0-r68 x1r-1gm x1l-avb x1y-bvg xrt-o8q x10-omn">
-                                  <div
-                                    class="x3n-f59 x19-22g xxy-2rh style-gENPJ"
-                                    id="style-gENPJ"
-                                  >
-                                    <div
-                                      class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x1h-vob x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn xtp-4qp xaa-nrq x1q-vbb xo1-mec x1v-7i1 xis-j6e x1y-cz7 xwi-az6 x1y-fvp xn6-yn4 style-VqK81"
-                                      id="style-VqK81"
-                                    >
-                                      <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                        <div class="x78-k5m">
-                                          <div class="x1q-729 xjm-mwh x1y-zwe xcw-b3g x1j-rxo x39-os4 x6i-llv x10-p3v x10-k12 xux-rea x1i-gfe">
-                                            Discard only works on drafts
-                                          </div>
-                                          <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                            <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                              <div
-                                                class="xtw-bqe style-YaoOb"
-                                                id="style-YaoOb"
-                                              ></div>
-                                            </div>
-                                            ​
-                                          </div>
-                                        </div>
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div
-                                    class="x3n-f59 x19-22g xxy-2rh style-coeVR"
-                                    id="style-coeVR"
-                                  >
-                                    <div
-                                      class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4 style-QBAGF"
-                                      id="style-QBAGF"
-                                    >
-                                      <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                        <div class="x78-k5m">
-                                          <div class="x1q-729 xjm-mwh x1y-zwe xcw-b3g x1j-rxo x39-os4 x6i-llv x10-p3v x10-k12 xux-rea x1i-gfe">
-                                            Delete (Ctrl+Backspace)
-                                          </div>
-                                          <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                            <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                              <div
-                                                class="xtw-bqe style-qcoIr"
-                                                id="style-qcoIr"
-                                              ></div>
-                                            </div>
-                                            ​
-                                          </div>
-                                        </div>
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div
-                                    class="x3n-f59 x19-22g xxy-2rh style-e5TYC"
-                                    id="style-e5TYC"
-                                  >
-                                    <div
-                                      class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4 style-YN1WA"
-                                      id="style-YN1WA"
-                                    >
-                                      <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                        <div class="x78-k5m">
-                                          <div class="x1q-729 xjm-mwh x1y-zwe xcw-b3g x1j-rxo x39-os4 x6i-llv x10-p3v x10-k12 xux-rea x1i-gfe">
-                                            Export and import ad configuration
-                                            data
-                                          </div>
-                                          <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                            <div class="x3n-f59 x2l-x9n x1c-s9e">
-                                              <i
-                                                class="borcb style-L47SC"
-                                                id="style-L47SC"
-                                              ></i>
-                                            </div>
-                                            ​
-                                          </div>
-                                        </div>
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <span>
-                                    <div class="x1r-1gm x67-vdc">
-                                      <div
-                                        class="x3n-f59 x19-22g xxy-2rh style-yeQ6D"
-                                        id="style-yeQ6D"
-                                      >
-                                        <div
-                                          class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4 style-sgBfr"
-                                          id="js_-y1s"
-                                        >
-                                          <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                            <div class="x78-k5m">
-                                              <div class="x1q-729 xjm-mwh x1y-zwe xcw-b3g x1j-rxo x39-os4 x6i-llv x10-p3v x10-k12 xux-rea x1i-gfe">
-                                                Tag
-                                              </div>
-                                              <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                                <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                                  <div
-                                                    class="xtw-bqe style-ybtCU"
-                                                    id="style-ybtCU"
-                                                  ></div>
-                                                </div>
-                                                ​
-                                              </div>
-                                            </div>
-                                          </span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </span>
-                                </div>
-                              </div>
-                              <span>
-                                <div>
-                                  <div class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1s-1or xn6-yn4">
-                                    <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                      <div class="x78-k5m">
-                                        <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 x1n-ohs xh8-7rm">
-                                          <div class="x1x-gir x1f-3w5 xk5-yrq xxi-osf x1h-z9p xux-rea x6i-llv x10-p3v xly-yd3 x1h-n1x xeu-5cs x1i-mop">
-                                            Rules
-                                          </div>
-                                          <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e x1g-ktz">
-                                            <div
-                                              class="xtw-bqe style-LkNRy"
-                                              id="style-LkNRy"
-                                            ></div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </span>
-                                  </div>
-                                  <div></div>
-                                </div>
-                              </span>
-                            </div>
-                          </div>
-                          <div class="_9p-foo"></div>
-                          <div>
-                            <div class="_9p-mlx">
-                              <div class="x1r-1gm x67-vdc">
-                                <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x19-o7c x1c-s9e">
-                                  <div>
-                                    <div class="x78-k5m x2l-sy7 xeu-5cs">
-                                      <label class="x1y-3tx" for="js_y">
-                                        <span class="xmi-jdh x1f-3w5 xo1-mec xxi-osf xbs-smn xq9-ccb x1h-n1x xeu-5cs">
-                                          View Setup
-                                        </span>
-                                      </label>
-                                    </div>
-                                  </div>
-                                  <div class="x1r-1gm x1n-ebg x3o-2lm">
-                                    <input
-                                      class="xjy-xqo x1y-3tx x5y-93y x17-29q xdj-7xw x11-km9 xat-gqj x1m-qix x1w-l2r x1t-x6v x10-k12 x13-jc2 xh8-7rm x1v-ozd"
-                                      id="js_-9qo"
-                                      type="checkbox"
-                                      value="false"
-                                    />
-                                    <div class="x1n-ebg xh8-7rm">
-                                      <div class="x6s-b1g x78-k5m x13-jfd xu3-lxl x1q-5lp x26-3ri x17-b29 xm8-jje xso-get xy8-5bs xwe-zcy xvy-dnv xrs-p2s x10-p9s xzo-esl x12-lai x1r-i5q xpr-kba x1g-2oj xbs-smn x13-1xr xxz-6j3 x14-cwj xex-hqt x4u-5xd x18-1nv xkh-4dw x15-lyv">
-                                        <div></div>
-                                        <div class="xw4-zzn x1q-b5x x12-ota x1h-scw xzo-esl x12-lai x1r-i5q xpr-kba x13-1xr x6o-z2g xxz-6j3 x4s-l7o"></div>
-                                      </div>
-                                      <div class="xwe-zcy xvy-dnv xrs-p2s x10-p9s xzo-esl x12-lai x1r-i5q xpr-kba x13-jfd xu3-lxl x1q-5lp x26-3ri x17-b29 xm8-jje xso-get xy8-5bs x13-1xr x6o-z2g xxz-6j3 xg0-zjx x47-i7f x10-k12 x17-29q xds-w4f x13-jc2 x1e-14k x6i-llv x10-p3v xnl-tca xmb-miv xdx-v6t xwm-aby xmn-8hy x8l-3ny x2t-xr7 x1b-6ok xhh-2ac x14-mnt x1w-2s9 x1n-ayl x1t-myr x1t-nw7 xe2-zda xsp-a2m x1s-bec x1w-r56 x1j-9it x9o-hdk x1r-2tj x1h-kyx x1t-941"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <span>
-                                <span>
-                                  <div>
-                                    <div>
-                                      <div class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4 xyq-3l2">
-                                        <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                          <div class="x78-k5m">
-                                            <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 x1n-ohs xh8-7rm">
-                                              <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                                <div
-                                                  class="xtw-bqe style-dKFAS"
-                                                  id="style-dKFAS"
-                                                ></div>
-                                              </div>
-                                              <div
-                                                style={{
-                                                  position: "relative",
-                                                }}
-                                                onClick={() =>
-                                                  setShowCustumizeBanner(
-                                                    (prev) => !prev
-                                                  )
-                                                }
-                                                class="x1x-gir x1f-3w5 xk5-yrq xxi-osf x1h-z9p xux-rea x6i-llv x10-p3v xly-yd3 x1h-n1x xeu-5cs x1i-mop"
-                                              >
-                                                Columns:{" "}
-                                                {showPerformanceAndClicks ===
-                                                "performanceandclicks"
-                                                  ? "Performance and clicks"
-                                                  : showPerformanceAndClicks}
-                                              </div>
-                                              <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e x1g-ktz">
-                                                <div
-                                                  class="xtw-bqe style-xor6d"
-                                                  id="style-xor6d"
-                                                ></div>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </span>
-                              </span>
-                              <span>
-                                <span>
-                                  <div
-                                    style={{ height: "36px" }}
-                                    class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4"
-                                  >
-                                    <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                      <div class="x78-k5m">
-                                        <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 x1n-ohs xh8-7rm">
-                                          <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                            <div
-                                              class="xtw-bqe style-yNFri"
-                                              id="style-yNFri"
-                                            ></div>
-                                          </div>
-
-                                          <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e x1g-ktz">
-                                            <div
-                                              class="xtw-bqe style-MoQpO"
-                                              id="style-MoQpO"
-                                            ></div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </span>
-                                  </div>
-                                </span>
-                                <div></div>
-                              </span>
-                              <span>
-                                <div
-                                  style={{ height: "36px" }}
-                                  class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4"
-                                >
-                                  <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                    <div class="x78-k5m">
-                                      <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 x1n-ohs xh8-7rm">
-                                        <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                          <div
-                                            class="xtw-bqe style-WMwKF"
-                                            id="style-WMwKF"
-                                          ></div>
-                                        </div>
-
-                                        <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e x1g-ktz">
-                                          <div
-                                            class="xtw-bqe style-LHbUw"
-                                            id="style-LHbUw"
-                                          ></div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </span>
-                                </div>
-                              </span>
-                              <div
-                                style={{ height: "36px" }}
-                                class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1y-fvp xn6-yn4 x1i-i9h"
-                              >
-                                <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                  <div class="x78-k5m">
-                                    <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 x1n-ohs xh8-7rm">
-                                      <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                        <div
-                                          class="xtw-bqe style-fTD3b"
-                                          id="style-fTD3b"
-                                        ></div>
-                                      </div>
-
-                                      <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e x1g-ktz">
-                                        <div
-                                          class="xtw-bqe style-hRzox"
-                                          id="style-hRzox"
-                                        ></div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </span>
-                              </div>
-                              <div class="x3n-f59 x19-22g xxy-2rh">
-                                <div
-                                  style={{ height: "36px", marginRight: "5px" }}
-                                  class="x1i-jzs xjq-fo1 xa4-581 xqe-pjo x2h-pyx x97-b4z xcf-7s5 x1q-q5j xm0-qg8 x9f-niv x1y-3tx xe8-io3 xdj-7xw x11-km9 xat-gqj x1m-qix x2l-sy7 xeu-5cs x16-qjz xgg-jek x1j-oce x6s-b1g x1e-wo3 xd1-m2q x1s-j5t x17-1rv x3n-f59 xdl-moy x1q-je5 x2l-x9n x19-22g x1n-ebg x1h-cqc x87-k99 xxy-2rh xvm-5tg x1l-qqn x1g-wjy x1l-avb x1y-bvg xrt-o8q x10-omn x1o-qi9 xaa-nrq x1q-vbb xo1-mec xbs-smn x1v-7i1 x1y-cz7 xwi-az6 x1p-fay x1y-fvp"
-                                >
-                                  <span class="xmi-jdh x1f-3w5 xxi-osf x1h-z9p xq9-ccb x1h-n1x x1p-bmo xeu-5cs xh8-7rm">
-                                    <div class="x78-k5m">
-                                      <div class="x6s-b1g x78-k5m x1q-je5 xoz-ire x2l-sy7 xeu-5cs x1i-mop x19-o7c x1h-9kw x13-1xr x6o-z2g xxz-6j3 xl5-e2e xh8-7rm">
-                                        <div class="x3n-f59 x1h-z9p x2l-x9n x1c-s9e">
-                                          <div
-                                            class="xtw-bqe style-tqGhF"
-                                            id="style-tqGhF"
-                                          ></div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </span>
-                                </div>
-                              </div>
-                              <div id="style-X3XOX" class="style-X3XOX"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {showcustomizedbanner && (
-                    <div className="custommadeui">
-                      <div>
-                        <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x65s2av">
-                          <label
-                            style={{
-                              marginBottom: "10px",
-                              cursor: "pointer",
-                            }}
-                            id="js_14i"
-                            for="js_14h"
-                          >
-                            <span class="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe x117nqv4 xeuugli">
-                              Recently Used
-                            </span>
-                          </label>
-                        </div>
-                        <label
-                          style={{
-                            padding: "10px 20px",
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                            backgroundColor:
-                              showPerformanceAndClicks === "performance"
-                                ? "#ecf2fe"
-                                : "",
-                          }}
-                          onClick={handleCloseBannerPerformance}
-                          class="x1i10hfl x1qjc9v5 xjbqb8w xjqpnuy xa49m3k xqeqjp1 x2hbi6w x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x78zum5 xdl72j9 xdt5ytf x2lah0s xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli xexx8yu x4uap5 x18d9i69 xkhd6sd x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1h6gzvc x1t137rt"
-                          tabindex="-1"
-                        >
-                          <div class="x78zum5 x1iyjqo2">
-                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1iorvi4 xjkvuk6 xurb0ha x1sxyh0 xp7jhwk x1n0m28w">
-                              {/* performance check box */}
-                              {showPerformanceAndClicks === "performance" ? (
-                                <div class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s">
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x1gzqxud xbsr9hj x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p">
-                                        <div class=""></div>
-                                        <input
-                                          class="xjyslct  x5yr21d x17qophe xdj266r x11i5rnm xat24cr x1mh8g0r x1w3u9th x1t137rt x10l6tqk x13vifvy  "
-                                          id="js_yo"
-                                          type="radio"
-                                          value="IMAGE_OR_VIDEO"
-                                          checked=""
-                                          name="js_yj"
-                                        />
-                                        <div class="x13dflua xnnyp6c x12w9bfk x78zum5 x6o7n8i x1hc1fzr x3oybdh">
-                                          <div class="xsmyaan x1kpxq89 xzolkzo x12go9s9 x1rnf11y xprq8jg xo1l8bm x140t73q x19bke7z"></div>
-                                        </div>
-                                      </div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s">
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x10cdfl8 xis6omg x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p"></div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              <div
-                                onClick={perfomarnaceandclicks}
-                                onMouseEnter={handleMouseEnterPerformance}
-                                onMouseLeave={handleMouseLeavePerformance}
-                                class="x1iyjqo2 xamitd3"
-                                data-sscoverage-ignore="true"
-                              >
-                                <div class="x6s0dn4 x1q0g3np xozqiw3 x2lwn1j x1iyjqo2 xs83m0k x65s2av x78zum5 xeuugli">
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      textAlign: "left",
-                                    }}
-                                  >
-                                    <div
-                                      class=""
-                                      style={{
-                                        color: "black",
-                                      }}
-                                    >
-                                      Performance
-                                    </div>
-                                    {showPerformanceAndClicks ===
-                                    "performance" ? (
-                                      <span>Default</span>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                        <label
-                          style={{
-                            backgroundColor:
-                              showPerformanceAndClicks ===
-                              "performanceandclicks"
-                                ? "#ecf2fe"
-                                : "", // Corrected ternary and removed double curly braces
-                            padding: "10px 20px",
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleCloseBannerPerformanceandClicks}
-                          onMouseEnter={handleMouseEnter}
-                          onMouseLeave={handleMouseLeave}
-                          class="x1i10hfl x1qjc9v5 xjbqb8w xjqpnuy xa49m3k xqeqjp1 x2hbi6w x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x78zum5 xdl72j9 xdt5ytf x2lah0s xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli xexx8yu x4uap5 x18d9i69 xkhd6sd x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1h6gzvc x1t137rt"
-                          tabindex="-1"
-                        >
-                          <div class="x78zum5 x1iyjqo2">
-                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1iorvi4 xjkvuk6 xurb0ha x1sxyh0 xp7jhwk x1n0m28w">
-                              {showPerformanceAndClicks ===
-                              "performanceandclicks" ? (
-                                <div class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s">
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x1gzqxud xbsr9hj x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p">
-                                        <div class=""></div>
-                                        <input
-                                          class="xjyslct  x5yr21d x17qophe xdj266r x11i5rnm xat24cr x1mh8g0r x1w3u9th x1t137rt x10l6tqk x13vifvy  "
-                                          id="js_yo"
-                                          type="radio"
-                                          value="IMAGE_OR_VIDEO"
-                                          checked=""
-                                          name="js_yj"
-                                        />
-                                        <div class="x13dflua xnnyp6c x12w9bfk x78zum5 x6o7n8i x1hc1fzr x3oybdh">
-                                          <div class="xsmyaan x1kpxq89 xzolkzo x12go9s9 x1rnf11y xprq8jg xo1l8bm x140t73q x19bke7z"></div>
-                                        </div>
-                                      </div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s">
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x10cdfl8 xis6omg x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p"></div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              <div
-                                class="x1iyjqo2 xamitd3"
-                                data-sscoverage-ignore="true"
-                              >
-                                <div class="x6s0dn4 x1q0g3np xozqiw3 x2lwn1j x1iyjqo2 xs83m0k x65s2av x78zum5 xeuugli">
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      textAlign: "left",
-                                    }}
-                                  >
-                                    <div
-                                      class=""
-                                      style={{
-                                        color: "black",
-                                      }}
-                                    >
-                                      Performance and clicks
-                                    </div>
-                                    {showPerformanceAndClicks ===
-                                    "performanceandclicks" ? (
-                                      <span>Default</span>
-                                    ) : (
-                                      ""
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                      </div>
-                      <hr />
-                      <div style={{ padding: "10px 0px" }}>
-                        <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x65s2av">
-                          <label id="js_14i" for="js_14h">
-                            <span class="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe x117nqv4 xeuugli">
-                              Popular
-                            </span>
-                          </label>
-                          <div class="xbsr9hj x78zum5">
+                        <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                          <div class="x78zum5">
                             <div
-                              class="x3nfvp2 x120ccyz x1heor9g"
+                              class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                              data-sscoverage-ignore="true"
+                            >
+                              You haven't copied any items.
+                            </div>
+                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                              <div
+                                class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                role="presentation"
+                              >
+                                <div
+                                  class="xtwfq29 style-YlMmn"
+                                  id="style-YlMmn"
+                                ></div>
+                              </div>
+                              ​
+                            </div>
+                          </div>
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      class="x3oybdh xuxw1ft x1iknuni xw9jwym x1e2iszw xg0tal0 x1rg5ohu x1lcm9me x1yr5g0i xrt01vj x10y3i5r"
+                      role="group"
+                    >
+                      <div
+                        class="x3nfvp2 x193iq5w xxymvpz style-FUDwj"
+                        role="none"
+                        id="style-FUDwj"
+                      >
+                        <div
+                          aria-busy="false"
+                          aria-disabled="true"
+                          class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1h6gzvc x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xtpvj6k xaatb59 x1qgsegg xo1l8bm x1v911su xis6omg x1y1aw1k xwib8y2 x1ye3gou xn6708d style-4peaS"
+                          role="button"
+                          tabindex="-1"
+                          id="style-4peaS"
+                        >
+                          <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                            <div class="x78zum5">
+                              <div
+                                class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                data-sscoverage-ignore="true"
+                              >
+                                Discard draft
+                              </div>
+                              <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                <div
+                                  class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                  role="presentation"
+                                >
+                                  <div
+                                    class="xtwfq29 style-GRDC9"
+                                    id="style-GRDC9"
+                                  ></div>
+                                </div>
+                                ​
+                              </div>
+                            </div>
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="x3nfvp2 x193iq5w xxymvpz style-rnpLq"
+                        role="none"
+                        id="style-rnpLq"
+                      >
+                        <div
+                          aria-busy="false"
+                          class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1h6gzvc x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xtpvj6k xaatb59 x1qgsegg xo1l8bm x1v911su xis6omg x1y1aw1k xwib8y2 x1ye3gou xn6708d style-sUtrk"
+                          role="button"
+                          tabindex="-1"
+                          aria-disabled="true"
+                          id="style-sUtrk"
+                        >
+                          <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                            <div class="x78zum5">
+                              <div
+                                class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                data-sscoverage-ignore="true"
+                              >
+                                Delete isn't available with your current
+                                campaign selection.
+                              </div>
+                              <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                <div
+                                  class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                  role="presentation"
+                                >
+                                  <div
+                                    class="xtwfq29 style-7tcCl"
+                                    id="style-7tcCl"
+                                  ></div>
+                                </div>
+                                ​
+                              </div>
+                            </div>
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="x3nfvp2 x193iq5w xxymvpz style-XDZc1"
+                        role="none"
+                        id="style-XDZc1"
+                      >
+                        <div
+                          aria-busy="false"
+                          aria-controls="js_4no"
+                          aria-expanded="false"
+                          aria-haspopup="menu"
+                          class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1ye3gou xn6708d style-zyBPr"
+                          role="button"
+                          tabindex="0"
+                          id="style-zyBPr"
+                        >
+                          <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                            <div class="x78zum5">
+                              <div
+                                class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                data-sscoverage-ignore="true"
+                              >
+                                Export and import ad configuration data
+                              </div>
+                              <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                <div class="x3nfvp2 x2lah0s x1c4vz4f">
+                                  <i
+                                    alt=""
+                                    data-visualcompletion="css-img"
+                                    class="img style-txHVt"
+                                    id="style-txHVt"
+                                  ></i>
+                                </div>
+                                ​
+                              </div>
+                            </div>
+                          </span>
+                        </div>
+                      </div>
+                      <span class="">
+                        <div class="x1rg5ohu x67bb7w">
+                          <div
+                            class="x3nfvp2 x193iq5w xxymvpz style-dITmS"
+                            role="none"
+                            id="style-dITmS"
+                          >
+                            <div
+                              aria-busy="false"
+                              aria-disabled="true"
+                              class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1h6gzvc x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xtpvj6k xaatb59 x1qgsegg xo1l8bm x1v911su xis6omg x1y1aw1k xwib8y2 x1ye3gou xn6708d style-6AHYd"
+                              role="button"
+                              tabindex="-1"
+                              id="js_gpe"
+                            >
+                              <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                                <div class="x78zum5">
+                                  <div
+                                    class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                    data-sscoverage-ignore="true"
+                                  >
+                                    Tag
+                                  </div>
+                                  <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                    <div
+                                      class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                      role="presentation"
+                                    >
+                                      <div
+                                        class="xtwfq29 style-iCB6e"
+                                        id="style-iCB6e"
+                                      ></div>
+                                    </div>
+                                    ​
+                                  </div>
+                                </div>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </span>
+                    </div>
+                  </div>
+                  <span>
+                    <div>
+                      <div
+                        aria-busy="false"
+                        aria-controls="js_4np"
+                        aria-expanded="false"
+                        aria-haspopup="menu"
+                        class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1swvt13 xn6708d"
+                        id="js_y"
+                        role="button"
+                        tabindex="0"
+                      >
+                        <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                          <div class="x78zum5">
+                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk x1nhvcw1 xh8yej3">
+                              <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs x1iyjqo2">
+                                Rules
+                              </div>
+                              <div
+                                class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
+                                role="presentation"
+                              >
+                                <div
+                                  class="xtwfq29 style-rxQ61"
+                                  id="style-rxQ61"
+                                ></div>
+                              </div>
+                            </div>
+                          </div>
+                        </span>
+                      </div>
+                      <div data-visualcompletion="ignore" class=""></div>
+                    </div>
+                  </span>
+                </div>
+              </div>
+              <div class="_9p_w"></div>
+              <div>
+                <div class="_9p_y">
+                  <div class="x1rg5ohu x67bb7w">
+                    <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x19lwn94 x1c4vz4f">
+                      <div>
+                        <div class="x78zum5 x2lwn1j xeuugli">
+                          <label class="x1ypdohk" for="js_4nq">
+                            <span class="xmi5d70 x1fvot60 xo1l8bm xxio538 xbsr9hj xq9mrsl x1h4wwuj xeuugli x1uvtmcs">
+                              View Setup
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="x1rg5ohu x1n2onr6 x3oybdh">
+                        <input
+                          aria-checked="false"
+                          aria-label="View Setup"
+                          role="switch"
+                          aria-describedby="js_4nr"
+                          class="xjyslct x1ypdohk x5yr21d x17qophe xdj266r x11i5rnm xat24cr x1mh8g0r x1w3u9th x1t137rt x10l6tqk x13vifvy xh8yej3 x1vjfegm"
+                          id="js_4nq"
+                          type="checkbox"
+                          value="false"
+                        />
+                        <div class="x1n2onr6 xh8yej3">
+                          <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x1gzqxud xbsr9hj x13dflua xxziih7 x12w9bfk x14qfxbe xexx8yu x4uap5 x18d9i69 xkhd6sd x15406qy">
+                            <div class=""></div>
+                            <div class="xw4jnvo x1qx5ct2 x12y6twl x1h45990 xzolkzo x12go9s9 x1rnf11y xprq8jg x13dflua x6o7n8i xxziih7 x12w9bfk x4s1yf2"></div>
+                          </div>
+                          <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <span>
+                    <span
+                      class=" "
+                      data-tracked="true"
+                      data-interactable="|mousedown||click|"
+                      data-auto-logging-id="fb986eb3e"
+                    >
+                      <div id="ads_manager_table_column_dropdown_id">
+                        <div id="ads_manager_nux_for_attribution_setting_column_aem_v2_mai_action_dropdown_nux">
+                          <div
+                            aria-busy="false"
+                            aria-controls="js_4nt"
+                            aria-expanded="false"
+                            aria-haspopup="menu"
+                            class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1ye3gou xn6708d xyq1l15"
+                            role="button"
+                            tabindex="0"
+                            data-auto-logging-id="f1b09a509"
+                            id="js_4y0"
+                          >
+                            <span
+                              onClick={handleShowSlector}
+                              class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3"
+                            >
+                              <div class="x78zum5">
+                                <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk x1nhvcw1 xh8yej3">
+                                  <div
+                                    class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                    role="presentation"
+                                  >
+                                    <div
+                                      class="xtwfq29 style-knHVB"
+                                      id="style-knHVB"
+                                    ></div>
+                                  </div>
+                                  <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs x1iyjqo2"></div>
+                                  <div
+                                    class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
+                                    role="presentation"
+                                  >
+                                    <div
+                                      class="xtwfq29 style-i6fOK"
+                                      id="style-i6fOK"
+                                    ></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </span>
+                  </span>
+                  <span
+                    onClick={() => setShowPlacementBox((prev) => !prev)}
+                    class=""
+                    id="ads_manager_breakdown_dropdown_id"
+                  >
+                    <span
+                      class=" "
+                      data-tracked="true"
+                      data-interactable="|mousedown||click|"
+                    >
+                      <div
+                        aria-busy="false"
+                        aria-controls="js_4nv"
+                        aria-expanded="false"
+                        aria-haspopup="menu"
+                        class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1ye3gou xn6708d"
+                        role="button"
+                        tabindex="0"
+                      >
+                        <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                          <div class="x78zum5">
+                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk x1nhvcw1 xh8yej3">
+                              <div
+                                class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                role="presentation"
+                              >
+                                <div
+                                  class="xtwfq29 style-lj7zl"
+                                  id="style-lj7zl"
+                                ></div>
+                              </div>
+                              <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs x1iyjqo2">
+                                Breakdown {showPerformanceRows && `1 Selected`}
+                              </div>
+                              <div
+                                class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
+                                role="presentation"
+                              >
+                                <div
+                                  class="xtwfq29 style-OrUfr"
+                                  id="style-OrUfr"
+                                ></div>
+                              </div>
+                            </div>
+                          </div>
+                        </span>
+                      </div>
+                    </span>
+                    <div data-visualcompletion="ignore" class=""></div>
+                  </span>
+                  <span id="ads_manager_reports_dropdown_id">
+                    <div
+                      aria-busy="false"
+                      aria-controls="js_4nx"
+                      aria-expanded="false"
+                      aria-haspopup="menu"
+                      class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1ye3gou xn6708d"
+                      role="button"
+                      tabindex="0"
+                    >
+                      <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                        <div class="x78zum5">
+                          <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk x1nhvcw1 xh8yej3">
+                            <div
+                              class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
                               role="presentation"
                             >
                               <div
-                                class="xtwfq29 style-CEZaQ"
-                                id="style-CEZaQ"
+                                class="xtwfq29 style-DK9EZ"
+                                id="style-DK9EZ"
+                              ></div>
+                            </div>
+                            <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs x1iyjqo2">
+                              Reports
+                            </div>
+                            <div
+                              class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
+                              role="presentation"
+                            >
+                              <div
+                                class="xtwfq29 style-Qp731"
+                                id="style-Qp731"
                               ></div>
                             </div>
                           </div>
                         </div>
-                        <label
-                          style={{
-                            backgroundColor:
-                              showPerformanceAndClicks === "engagement"
-                                ? "#ecf2fe"
-                                : "", // Corrected ternary and removed double curly braces
-                            padding: "10px 20px",
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleCloseBannerEngagement}
-                          onMouseEnter={handleMouseEnterEngagement}
-                          onMouseLeave={handleMouseLeaveEngagement}
-                          class="x1i10hfl x1qjc9v5 xjbqb8w xjqpnuy xa49m3k xqeqjp1 x2hbi6w x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk x78zum5 xdl72j9 xdt5ytf x2lah0s xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli xexx8yu x4uap5 x18d9i69 xkhd6sd x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt"
-                          tabindex="-1"
-                        >
-                          <div class="x78zum5 x1iyjqo2">
-                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1iorvi4 xjkvuk6 xurb0ha x1sxyh0 xp7jhwk x1n0m28w">
-                              {showPerformanceAndClicks === "engagement" ? (
-                                <div
-                                  style={{ marginTop: "5px" }}
-                                  class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s"
-                                >
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x1gzqxud xbsr9hj x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p">
-                                        <div class=""></div>
-                                        <input
-                                          class="xjyslct  x5yr21d x17qophe xdj266r x11i5rnm xat24cr x1mh8g0r x1w3u9th x1t137rt x10l6tqk x13vifvy  "
-                                          id="js_yo"
-                                          type="radio"
-                                          value="IMAGE_OR_VIDEO"
-                                          checked=""
-                                          name="js_yj"
-                                        />
-                                        <div class="x13dflua xnnyp6c x12w9bfk x78zum5 x6o7n8i x1hc1fzr x3oybdh">
-                                          <div class="xsmyaan x1kpxq89 xzolkzo x12go9s9 x1rnf11y xprq8jg xo1l8bm x140t73q x19bke7z"></div>
-                                        </div>
-                                      </div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  style={{ marginTop: "5px" }}
-                                  class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s"
-                                >
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x10cdfl8 xis6omg x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p"></div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              <div
-                                class="x1iyjqo2 xr9ek0c xamitd3"
-                                data-sscoverage-ignore="true"
-                              >
-                                <div class="x6s0dn4 x1q0g3np xozqiw3 x2lwn1j x1iyjqo2 xs83m0k x65s2av x78zum5 xeuugli">
-                                  <div
-                                    style={{
-                                      textAlign: "left",
-                                      fontWeight: "bold",
-                                    }}
-                                    class="xmi5d70 x1fvot60 xo1l8bm xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe xeuugli x1iyjqo2"
-                                    id="js_yq"
-                                  >
-                                    Engagement{" "}
-                                  </div>
-                                </div>
-                                <div
-                                  style={{
-                                    textAlign: "left",
-                                  }}
-                                  class="xw23nyj xo1l8bm x63nzvj"
-                                >
-                                  {showPerformanceAndClicks === "engagement" ? (
-                                    <span>Default</span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                        <label
-                          style={{
-                            backgroundColor:
-                              showPerformanceAndClicks === "delivery"
-                                ? "#ecf2fe"
-                                : "", // Corrected ternary and removed double curly braces
-                            padding: "10px 20px",
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleCloseBannerDelivery}
-                          onMouseEnter={handleMouseEnterDelivery}
-                          onMouseLeave={handleMouseLeaveDelivery}
-                          class="x1i10hfl x1qjc9v5 xjbqb8w xjqpnuy xa49m3k xqeqjp1 x2hbi6w x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk x78zum5 xdl72j9 xdt5ytf x2lah0s xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli xexx8yu x4uap5 x18d9i69 xkhd6sd x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt"
-                          tabindex="-1"
-                        >
-                          <div class="x78zum5 x1iyjqo2">
-                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1iorvi4 xjkvuk6 xurb0ha x1sxyh0 xp7jhwk x1n0m28w">
-                              {showPerformanceAndClicks === "delivery" ? (
-                                <div
-                                  style={{ marginTop: "5px" }}
-                                  class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s"
-                                >
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x1gzqxud xbsr9hj x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p">
-                                        <div class=""></div>
-                                        <input
-                                          class="xjyslct  x5yr21d x17qophe xdj266r x11i5rnm xat24cr x1mh8g0r x1w3u9th x1t137rt x10l6tqk x13vifvy  "
-                                          id="js_yo"
-                                          type="radio"
-                                          value="IMAGE_OR_VIDEO"
-                                          checked=""
-                                          name="js_yj"
-                                        />
-                                        <div class="x13dflua xnnyp6c x12w9bfk x78zum5 x6o7n8i x1hc1fzr x3oybdh">
-                                          <div class="xsmyaan x1kpxq89 xzolkzo x12go9s9 x1rnf11y xprq8jg xo1l8bm x140t73q x19bke7z"></div>
-                                        </div>
-                                      </div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  style={{ marginTop: "5px" }}
-                                  class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s"
-                                >
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x10cdfl8 xis6omg x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p"></div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              <div
-                                class="x1iyjqo2 xr9ek0c xamitd3"
-                                data-sscoverage-ignore="true"
-                              >
-                                <div class="x6s0dn4 x1q0g3np xozqiw3 x2lwn1j x1iyjqo2 xs83m0k x65s2av x78zum5 xeuugli">
-                                  <div
-                                    style={{
-                                      textAlign: "left",
-                                      fontWeight: "bold",
-                                    }}
-                                    class="xmi5d70 x1fvot60 xo1l8bm xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe xeuugli x1iyjqo2"
-                                    id="js_yq"
-                                  >
-                                    Delivery
-                                  </div>
-                                </div>
-                                <div
-                                  style={{
-                                    textAlign: "left",
-                                  }}
-                                  class="xw23nyj xo1l8bm x63nzvj"
-                                >
-                                  {showPerformanceAndClicks === "delivery" ? (
-                                    <span>Default</span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                        <label
-                          style={{
-                            backgroundColor:
-                              showPerformanceAndClicks === "videoengagement"
-                                ? "#ecf2fe"
-                                : "", // Corrected ternary and removed double curly braces
-                            padding: "10px 20px",
-                            borderRadius: "10px",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleCloseBannervideoEngagement}
-                          onMouseEnter={handleMouseEntervideoEngagement}
-                          onMouseLeave={handleMouseLeavevideoEngagement}
-                          class="x1i10hfl x1qjc9v5 xjbqb8w xjqpnuy xa49m3k xqeqjp1 x2hbi6w x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk x78zum5 xdl72j9 xdt5ytf x2lah0s xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli xexx8yu x4uap5 x18d9i69 xkhd6sd x1n2onr6 x16tdsg8 x1hl2dhg xggy1nq x1ja2u2z x1t137rt"
-                          tabindex="-1"
-                        >
-                          <div class="x78zum5 x1iyjqo2">
-                            <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1iorvi4 xjkvuk6 xurb0ha x1sxyh0 xp7jhwk x1n0m28w">
-                              {/*  just a second */}
-                              {showPerformanceAndClicks ===
-                              "videoengagement" ? (
-                                <div
-                                  style={{ marginTop: "5px" }}
-                                  class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s"
-                                >
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x1gzqxud xbsr9hj x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p">
-                                        <div class=""></div>
-                                        <input
-                                          class="xjyslct  x5yr21d x17qophe xdj266r x11i5rnm xat24cr x1mh8g0r x1w3u9th x1t137rt x10l6tqk x13vifvy  "
-                                          id="js_yo"
-                                          type="radio"
-                                          value="IMAGE_OR_VIDEO"
-                                          checked=""
-                                          name="js_yj"
-                                        />
-                                        <div class="x13dflua xnnyp6c x12w9bfk x78zum5 x6o7n8i x1hc1fzr x3oybdh">
-                                          <div class="xsmyaan x1kpxq89 xzolkzo x12go9s9 x1rnf11y xprq8jg xo1l8bm x140t73q x19bke7z"></div>
-                                        </div>
-                                      </div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  style={{ marginTop: "5px" }}
-                                  class="x6s0dn4 x3nfvp2 x1q0g3np xozqiw3 x2lwn1j xeuugli x1c4vz4f x19lwn94 xqcrz7y x2lah0s"
-                                >
-                                  <div class="x1rg5ohu x1n2onr6 x3oybdh">
-                                    <div class="x1n2onr6 x14atkfc">
-                                      <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x10cdfl8 xis6omg x9f619 xexx8yu x4uap5 x18d9i69 xkhd6sd xl56j7k xxk0z11 xvy4d1p"></div>
-                                      <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              <div
-                                class="x1iyjqo2 xr9ek0c xamitd3"
-                                data-sscoverage-ignore="true"
-                              >
-                                <div class="x6s0dn4 x1q0g3np xozqiw3 x2lwn1j x1iyjqo2 xs83m0k x65s2av x78zum5 xeuugli">
-                                  <div
-                                    style={{
-                                      textAlign: "left",
-                                      fontWeight: "bold",
-                                    }}
-                                    class="xmi5d70 x1fvot60 xo1l8bm xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe xeuugli x1iyjqo2"
-                                    id="js_yq"
-                                  >
-                                    Video engagement
-                                  </div>
-                                </div>
-                                <div
-                                  style={{
-                                    textAlign: "left",
-                                  }}
-                                  class="xw23nyj xo1l8bm x63nzvj"
-                                >
-                                  {showPerformanceAndClicks ===
-                                  "videoengagement" ? (
-                                    <span>Default</span>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </label>
-                      </div>
-                      <hr />
-                      <div style={{ textAlign: "left", padding: "10px 0px" }}>
-                        <label
-                          style={{ textAlign: "left" }}
-                          id="js_14i"
-                          for="js_14h"
-                        >
-                          <span class="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe x117nqv4 xeuugli">
-                            Discover more column Presets
-                          </span>
-                        </label>
+                      </span>
+                    </div>
+                  </span>
+                  <div
+                    class="x3oybdh xuxw1ft x1iknuni xw9jwym x1e2iszw xg0tal0 x1lliihq x1lcm9me x1yr5g0i xrt01vj x10y3i5r"
+                    role="group"
+                  >
+                    <span
+                      class=" "
+                      data-tracked="true"
+                      data-interactable="|mousedown||click|"
+                    >
+                      <div
+                        class="x3nfvp2 x193iq5w xxymvpz style-eegA2"
+                        role="none"
+                        id="style-eegA2"
+                      >
                         <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            paddingTop: "10px",
-                          }}
+                          aria-busy="false"
+                          class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1pi30zi x1ye3gou style-3arQw"
+                          role="button"
+                          tabindex="0"
+                          id="style-3arQw"
                         >
-                          <span style={{ paddingRight: "5px", color: "gray" }}>
-                            Try others column presets with key metrics to
-                            monitor your campaigns.
-                          </span>
-                          <span>
-                            <ChevronRightIcon
-                              width={20}
-                              height={20}
-                              style={{ color: "black", fontWeight: "bold" }}
-                            />
+                          <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                            <div class="x78zum5">
+                              <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                <div
+                                  class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                  role="presentation"
+                                >
+                                  <div
+                                    class="xtwfq29 style-ZGt8k"
+                                    id="style-ZGt8k"
+                                  ></div>
+                                </div>
+                                <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs">
+                                  Export
+                                </div>
+                              </div>
+                            </div>
                           </span>
                         </div>
                       </div>
-                      <hr />
-                      <div style={{ textAlign: "left", paddingTop: "15px" }}>
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span>
-                            <div
-                              style={{
-                                width: "16px",
-                                height: "16px",
-                                maskImage:
-                                  "url('https://static.xx.fbcdn.net/rsrc.php/v3/yT/r/eVDhhVwdiBk.png')",
-                                WebkitMaskImage:
-                                  "url('https://static.xx.fbcdn.net/rsrc.php/v3/yT/r/eVDhhVwdiBk.png')",
-                                maskPosition: "-238px -937px",
-                                WebkitMaskPosition: "-238px -937px",
-                                backgroundColor: "black", // Background color for mask
-                              }}
-                            ></div>
-                          </span>
-                          <span
-                            style={{
-                              paddingLeft: "10px",
-                              fontSize: "14px",
-                              color: "gray",
-                            }}
+                    </span>
+                    <div
+                      aria-busy="false"
+                      aria-controls="js_4nz"
+                      aria-expanded="false"
+                      aria-haspopup="menu"
+                      class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1ye3gou xn6708d style-VydSx"
+                      role="button"
+                      tabindex="0"
+                      id="style-VydSx"
+                    >
+                      <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                        <div class="x78zum5">
+                          <div
+                            class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                            data-sscoverage-ignore="true"
                           >
-                            Compare attribution settings
-                          </span>
-                        </div>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginTop: "15px",
-                          }}
-                        >
-                          <span>
+                            Open Drop-down
+                          </div>
+                          <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk x1nhvcw1 xh8yej3">
+                            ​
                             <div
-                              style={{
-                                width: "16px",
-                                height: "16px",
-                                maskImage:
-                                  "url('https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/MOEMAc4dvof.png')",
-                                WebkitMaskImage:
-                                  "url('https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/MOEMAc4dvof.png')",
-                                maskPosition: "-387px -1152px",
-                                WebkitMaskPosition: "-387px -1152px",
-                                backgroundColor: "black", // This provides a visible color where the mask is applied
-                              }}
-                            ></div>
-                          </span>
-                          <span
-                            style={{
-                              paddingLeft: "10px",
-                              fontSize: "14px",
-                              color: "gray",
-                            }}
-                          >
-                            Customise columns
-                          </span>
+                              class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
+                              role="presentation"
+                            >
+                              <div
+                                class="xtwfq29 style-y9WiR"
+                                id="style-y9WiR"
+                              ></div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      </span>
                     </div>
-                  )}
-                  {isHovered && (
+                  </div>
+                  <div class="x3nfvp2 x193iq5w xxymvpz" role="none">
                     <div
-                      className="mykjlsk"
-                      style={{
-                        position: "absolute",
-                        width: "250px",
-                        height: "600px",
-                        top: 0,
-                        left: "900px",
-                        borderRadius: "5px",
-                        zIndex: 999,
-                      }}
+                      aria-busy="false"
+                      class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r x1ob88yx xaatb59 x1qgsegg xo1l8bm xbsr9hj x1v911su x1y1aw1k xwib8y2 x1pi30zi x1ye3gou"
+                      role="button"
+                      tabindex="0"
                     >
-                      <label
-                        style={{ textAlign: "left", marginBottom: "15px" }}
-                        id="js_14i"
-                        for="js_14h"
-                      >
-                        <span className="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe x117nqv4 xeuugli lethoveronw">
-                          Performance and clicks
-                        </span>
-                      </label>
-                      <div>
-                        <p>
-                          Here are the metrics and details included in this
-                          column preset:
-                        </p>
-                        <ul className="mycustomUIhere">
-                          <li>Delivery</li>
-                          <li>Attribution setting</li>
-                          <li>Results</li>
-                          <li>Reach</li>
-                          <li>Frequency</li>
-                          <li>Cost per result</li>
-                          <li>Budget</li>
-                          <li>Amount spend</li>
-                          <li>Ends</li>
-                          <li>Schedule</li>
-                          <li>Quality ranking</li>
-                          <li>Engagement rate ranking</li>
-                          <li>Conversion rate ranking</li>
-                          <li>Impressions</li>
-                          <li>CPM(cost per 1,000 impressions)</li>
-                          <li>Links clicks</li>
-                          <li>CPC(cost per link click)</li>
-                          <li>CTR(link click-through rate)</li>
-                          <li>Clicks(all)</li>
-                          <li>CTR(all)</li>
-                          <li>CPC(all)</li>
-                        </ul>
-                      </div>
+                      <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                        <div class="x78zum5">
+                          <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                            <div
+                              class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                              role="presentation"
+                            >
+                              <div
+                                class="xtwfq29 style-B5hfK"
+                                id="style-B5hfK"
+                              ></div>
+                            </div>
+                            <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs">
+                              Charts
+                            </div>
+                          </div>
+                        </div>
+                      </span>
                     </div>
-                  )}
-                  {/* is hover performance */}
-                  {isHoveredPeformance && (
-                    <div
-                      className="replicatwo"
-                      style={{
-                        position: "absolute",
-                        width: "250px",
-                        height: "450px",
-                        top: "150px",
-                        left: "900px",
-                        borderRadius: "5px",
-                        zIndex: 999,
-                      }}
-                    >
-                      <label
-                        style={{ textAlign: "left", marginBottom: "15px" }}
-                        id="js_14i"
-                        for="js_14h"
-                      >
-                        <span className="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe x117nqv4 xeuugli lethoveronw">
-                          Performance
-                        </span>
-                      </label>
-                      <div>
-                        <p>
-                          Here are the metrics and details included in this
-                          column preset:
-                        </p>
-                        <ul className="mycustomUIhere">
-                          <li>Delivery</li>
-                          <li>Ad set name</li>
-                          <li>Bid strategy</li>
-                          <li>Budget</li>
-                          <li>Last significant</li>
-                          <li>Attribution setting</li>
-                          <li>Reach</li>
-                          <li>Resutls</li>
-                          <li>Impressions</li>
-                          <li>Cost per result</li>
-                          <li>Quality ranking</li>
-                          <li>Engagement rate ranking</li>
-                          <li>Conversion rate ranking</li>
-                          <li>Amount spend</li>
-                          <li>Ends</li>
-                          <li>Schedule</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                  {ishoverEngagement && (
-                    <div
-                      className="mywollcos"
-                      style={{
-                        position: "absolute",
-                        width: "250px",
-                        height: "300px",
-                        top: "250px",
-                        left: "900px",
-                        borderRadius: "5px",
-                        zIndex: 999,
-                        padding: "10px",
-                      }}
-                    >
-                      <label
-                        style={{ textAlign: "left", marginBottom: "15px" }}
-                        id="js_14i"
-                        for="js_14h"
-                      >
-                        <span className="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe x117nqv4 xeuugli lethoveronw">
-                          Engagement
-                        </span>
-                      </label>
-                      <div>
-                        <p>
-                          Here are the metrics and details included in this
-                          column preset:
-                        </p>
-                        <ul className="mycustomUIhere">
-                          <li>Delivery</li>
-                          <li>Page engagement</li>
-                          <li>Post reactions</li>
-                          <li>Post Comments</li>
-                          <li>Post saves</li>
-                          <li>Post shares</li>
-                          <li>Link clicks</li>
-                          <li>Follow or likes</li>
-                          <li>CPC (cost perlink click)</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                  {ishoverDelivery && (
-                    <div
-                      className="mywoldelivery"
-                      style={{
-                        position: "absolute",
-                        width: "250px",
-                        height: "300px",
-                        top: "300px",
-                        left: "900px",
-                        borderRadius: "5px",
-                        zIndex: 999,
-                      }}
-                    >
-                      <label
-                        style={{ textAlign: "left", marginBottom: "15px" }}
-                        id="js_14i"
-                        for="js_14h"
-                      >
-                        <span className="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe x117nqv4 xeuugli lethoveronw">
-                          Delivery
-                        </span>
-                      </label>
-                      <div>
-                        <p>
-                          Here are the metrics and details included in this
-                          column preset:
-                        </p>
-                        <ul className="mycustomUIhere">
-                          <li>Delivery</li>
-                          <li>Reach</li>
-                          <li>Frequency</li>
-                          <li>Cost per 1,000 Accounts</li>
-                          <li>Centre accounts reached</li>
-                          <li>Impressions</li>
-                          <li>CPM (cost per 1,000 impressions)</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                  {/* Vedio Engagement here  */}
-                  {ishovervedioengagement && (
-                    <div
-                      className="mywoldelivery"
-                      style={{
-                        position: "absolute",
-                        width: "250px",
-                        height: "300px",
-                        top: "300px",
-                        left: "900px",
-                        borderRadius: "5px",
-                        zIndex: 999,
-                      }}
-                    >
-                      <label
-                        style={{ textAlign: "left", marginBottom: "15px" }}
-                        id="js_14i"
-                        for="js_14h"
-                      >
-                        <span className="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1mzt3pk x1vvkbs x13faqbe x117nqv4 xeuugli lethoveronw">
-                          Video engagement
-                        </span>
-                      </label>
-                      <div>
-                        <p>
-                          Here are the metrics and details included in this
-                          column preset:
-                        </p>
-                        <ul className="mycustomUIhere">
-                          <li>Delivery</li>
-                          <li>Impressions</li>
-                          <li>2-second continuous video plays</li>
-                          <li>Cost per 2-second continuous video play</li>
-                          <li>3-second video plays</li>
-                          <li>Cost per 3-second video play</li>
-                          <li>ThruPlays</li>
-                          <li>Cost per ThruPlay</li>
-                          <li>Reach</li>
-                          <li>Amount spent</li>
-                          <li>Video plays at 25%</li>
-                          <li>Video plays at 50%</li>
-                          <li>Video plays at 75%</li>
-                          <li>Video plays at 95%</li>
-                          <li>Video plays at 100%</li>
-                        </ul>
-                      </div>
-                    </div>
-                  )}
+                  </div>
+                  <div id="style-GrFc4" class="style-GrFc4"></div>
                 </div>
               </div>
             </div>
-            {/* table start here from */}
-            <div
-              style={{
-                maxHeight: calculatedHeight,
-                backgroundColor: "#f5f6f7",
-                overflow: "scroll",
-              }}
-              className="campaign-table-container custom-row-background"
-            >
-              <Table
-                columns={columns}
-                dataSource={campaigns}
-                scroll={{ y: calculatedHeight }}
-                bordered
-                pagination={false}
-                sticky
-                summary={(pageData) => {
-                  // Calculate sums for specific numeric fields
-                  const totalReach = pageData.reduce(
-                    (sum, record) => sum + (Number(record.Reach) || 0),
-                    0
-                  );
-                  const totalResults = pageData.reduce(
-                    (sum, record) => sum + (Number(record.Results) || 0),
-                    0
-                  );
-                  const totalImpressions = pageData.reduce(
-                    (sum, record) => sum + (Number(record.Impressions) || 0),
-                    0
-                  );
-                  const largestCostPerResult = Math.max(
-                    ...pageData.map(
-                      (record) => Number(record.Costperresult) || 0
-                    )
-                  );
-                  const totalAmountSpent = pageData.reduce(
-                    (sum, record) => sum + (Number(record.Amountspent) || 0),
-                    0
-                  );
-                  const totalCostPerImpression = pageData.reduce(
-                    (sum, record) => sum + (Number(record.CPM) || 0),
-                    0
-                  );
-                  return (
-                    <Table.Summary fixed>
-                      <Table.Summary.Row
-                        fixed
-                        style={{
-                          borderBottomLeftRadius: "10px",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {columns.map((col, index) => {
-                          if (index === 0) {
-                            // First column: Span across two columns
-                            return (
-                              <Table.Summary.Cell
-                                key={index}
-                                index={index}
-                                colSpan={2}
-                              >
-                                <div></div>
-                              </Table.Summary.Cell>
-                            );
-                          }
-
-                          if (index === 1) {
-                            // Second column: Skip rendering because it's merged into the first column
-                            return null;
-                          }
-
-                          let value = null;
-
-                          if (col.dataIndex === "Reach")
-                            value = (
-                              <div style={{ textAlign: "right" }}>
-                                <div class="_1b-dar">
-                                  <div class="_e9-rt6">
-                                    <div>
-                                      <div class="xmi-yie xo1-xoz x10-bjv">
-                                        <div>
-                                          <span
-                                            id="style-DUim6"
-                                            class="style-DUim6"
-                                          >
-                                            {totalReach}
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <div class="ell-c6f _1h-d2w">
-                                        <div class="xt0-vq9 xmi-yie xw2-ook xo1-xoz x63-tnz x15-gv8">
-                                          Accounts Centre accounts
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          else if (col.dataIndex === "campaingname")
-                            value = <div></div>;
-                          else if (col.dataIndex === "Attributionsetting")
-                            value = (
-                              <div class="_1b-jyz">
-                                <div class="_e9-vat">
-                                  <div>
-                                    <div class="ell-1jx _1h-tgr">
-                                      <div class="xt0-wmx xmi-ayr xw2-5dw xo1-g1e x63-8h9 x15-656">
-                                        7-day click...
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          else if (col.dataIndex === "Results")
-                            value = (
-                              <div>
-                                <div
-                                  style={{ textAlign: "right" }}
-                                  class="_1b-jyz"
-                                >
-                                  <div class="_e9-vat">
-                                    <div>
-                                      <div class="xmi-ayr xo1-g1e x10-yi2">
-                                        <span>{totalResults}</span>
-                                      </div>
-                                      <div class="ell-1jx _1h-tgr">
-                                        <div class="xt0-wmx xmi-ayr xw2-5dw xo1-g1e x63-8h9 x15-656">
-                                          Link Clicks
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          else if (col.dataIndex === "Impressions")
-                            value = (
-                              <div>
-                                <div
-                                  class="_1b-jyz"
-                                  style={{ textAlign: "right" }}
-                                >
-                                  <div class="_e9-vat">
-                                    <div>
-                                      <div class="xmi-ayr xo1-g1e x10-yi2">
-                                        <span>{totalImpressions}</span>
-                                      </div>
-                                      <div class="ell-1jx _1h-tgr">
-                                        <div class="xt0-wmx xmi-ayr xw2-5dw xo1-g1e x63-8h9 x15-656">
-                                          Link Clicks
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          else if (col.dataIndex === "Costperresult")
-                            value = (
-                              <div>
-                                <div
-                                  class="_1b-jyz"
-                                  style={{ textAlign: "right" }}
-                                >
-                                  <div class="_e9-vat">
-                                    <div>
-                                      <div class="xmi-ayr xo1-g1e x10-yi2">
-                                        <span>
-                                          ${largestCostPerResult?.toFixed(2)}
-                                        </span>
-                                      </div>
-                                      <div class="ell-1jx _1h-tgr">
-                                        <div class="xt0-wmx xmi-ayr xw2-5dw xo1-g1e x63-8h9 x15-656">
-                                          Link Clicks
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          else if (col.dataIndex === "Amountspent")
-                            value = (
-                              <div>
-                                <div
-                                  class="_1b-jyz"
-                                  style={{ textAlign: "right" }}
-                                >
-                                  <div class="_e9-vat">
-                                    <div>
-                                      <div class="xmi-ayr xo1-g1e x10-yi2">
-                                        <span
-                                          style={{
-                                            fontWeight: "500",
-                                            fontSize: "14px",
-                                          }}
-                                        >
-                                          $
-                                          {Number(
-                                            totalAmountSpent
-                                          ).toLocaleString(undefined, {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                          })}
-                                        </span>
-                                      </div>
-                                      <div class="ell-1jx _1h-tgr">
-                                        <div class="xt0-wmx xmi-ayr xw2-5dw xo1-g1e x63-8h9 x15-656">
-                                          Total Spend
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-
-                          return (
-                            <Table.Summary.Cell
-                              key={index}
-                              index={index}
-                              style={{ width: col.width }}
-                            >
-                              {value !== null
-                                ? typeof value === "object"
-                                  ? value
-                                  : typeof value === "string"
-                                  ? value
-                                  : value.toFixed(2)
-                                : ""}
-                            </Table.Summary.Cell>
-                          );
-                        })}
-                      </Table.Summary.Row>
-                    </Table.Summary>
-                  );
-                }}
+          </div>
+        </div>
+        {showMenu && (
+          <div
+            style={{
+              position: "absolute",
+              top: "45px",
+              left: "1100px",
+              zIndex: 999,
+              textAlign: "left",
+            }}
+          >
+            <ColoumSelector />
+          </div>
+        )}
+        {showPlacementBox && (
+          <div
+            style={{
+              position: "absolute",
+              top: "48px",
+              left: "1180px",
+              zIndex: 999,
+              textAlign: "left",
+            }}
+          >
+            <div className="placeboxdiv">
+              <PlacementBox
+                showPlacementBox={showPlacementBox}
+                setShowPlacementBox={setShowPlacementBox}
+                showPerformanceRows={showPerformanceRows}
+                setShowPerformanceRows={setShowPerformanceRows}
               />
             </div>
-
-            {error && <div className="error-message">{error}</div>}
-
-            {/* talbe end here  */}
           </div>
+        )}
+      </div>
+      <div className="vCampaign-container">
+        {/* <select
+          className="vCampaign-select"
+          onChange={handleChange}
+          value={selectedCategory}
+        >
+          {Object.keys(categories).map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select> */}
+        {/* Checkbox for Performance */}
+
+        <div className="vCampaign-scrollable">
+          <table className="vCampaign-table">
+            <thead style={{ backgroundColor: "white" }}>
+              <tr>
+                <th
+                  style={{
+                    width: "40px", // Ensure proper width for the column
+                    position: "sticky", // Make the column sticky
+                    top: "0",
+                    left: "0", // Fix the column to the left
+                    zIndex: "1300", // Keep the column above other rows
+                    backgroundColor: "#fff", // Ensure background matches the table
+                    textAlign: "center", // Center-align the content
+                  }}
+                >
+                  <input
+                    style={{
+                      width: "22px",
+                      height: "22px",
+                      border: "1px solid gainsboro",
+                      outline: "none",
+                      marginRight: "8px",
+                      borderRadius: "4px",
+                      appearance: "none", // Remove default checkbox styling
+                      backgroundColor: "white", // Set background to white
+                      cursor: "pointer", // Change cursor to pointer for better UX
+                    }}
+                    type="checkbox"
+                    className="uniquecheckbox"
+                  />
+                </th>
+                <th
+                  className="sticky-col"
+                  style={{
+                    width: "75px",
+                    position: "sticky",
+                    left: "53px",
+                    top: "0",
+                    zIndex: "1300",
+                  }}
+                >
+                  <div
+                    scrollleft="586"
+                    class="x78zum5  x1yc453h   x6s0dn4 x972fbf xm81vs4 x1qhh985 "
+                    role="columnheader"
+                    tabindex="-1"
+                    data-auto-logging-id="f13d0860d"
+                  >
+                    <div>
+                      <div>
+                        <div
+                          aria-level="4"
+                          class="x1xqt7ti xsuwoey x63nzvj xbsr9hj xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj x117nqv4 xeuugli x1uvtmcs"
+                          role="heading"
+                          data-interactable="|mouseover|"
+                          id="js_2yg"
+                        >
+                          <div class="x1ua5tub x104kibb x1f6kntn x1h7i4cw xdy096k x195v057 x6ikm8r x10wlt62 x1yc453h xlyipyv xeaf4i8">
+                            <div class="_3ea9">
+                              Off/On
+                              <span id="style-enRz6" class="style-enRz6">
+                                <div id="style-MORL2" class="style-MORL2"></div>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div data-visualcompletion="ignore" class="">
+                          <div data-visualcompletion="ignore" class=""></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div data-visualcompletion="ignore" class="">
+                          <div></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </th>
+                <th
+                  className="vCampaign-campaign"
+                  style={{
+                    width: "300px",
+                    position: "sticky",
+                    left: "141px",
+                    top: "0",
+                    zIndex: "1300",
+                  }}
+                >
+                  <div
+                    scrollleft="586"
+                    class="x78zum5  x1yc453h   x6s0dn4 x972fbf xm81vs4 x1qhh985 "
+                    role="columnheader"
+                    tabindex="-1"
+                    data-auto-logging-id="f13d0860d"
+                  >
+                    <div>
+                      <div>
+                        <div
+                          aria-level="4"
+                          class="x1xqt7ti xsuwoey x63nzvj xbsr9hj xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj x117nqv4 xeuugli x1uvtmcs"
+                          role="heading"
+                          data-interactable="|mouseover|"
+                          id="js_2yg"
+                        >
+                          <div class="x1ua5tub x104kibb x1f6kntn x1h7i4cw xdy096k x195v057 x6ikm8r x10wlt62 x1yc453h xlyipyv xeaf4i8">
+                            <div class="_3ea9">
+                              Ad
+                              <span id="style-enRz6" class="style-enRz6">
+                                <div id="style-MORL2" class="style-MORL2"></div>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div data-visualcompletion="ignore" class="">
+                          <div data-visualcompletion="ignore" class=""></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div data-visualcompletion="ignore" class="">
+                          <div></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="x10l6tqk xnx3k43">
+                      <div class="x1pha0wt x78zum5 x2lwn1j xeuugli">
+                        <div>
+                          <button
+                            aria-label="open sorting options drop-down menu"
+                            class="x78zum5 x6s0dn4 xl56j7k x1nn3v0j xg83lxy x1120s5i x1h0ha7o x8j4wrb x1npaq5j x1c83p5e x1enjb0b x199158v xgcd1z6 x1ejq31n xd10rxx x1sy0etr x17r0tee xx8sgm8"
+                            type="button"
+                          >
+                            <div class="xgxxoiu">
+                              <i
+                                alt=""
+                                data-visualcompletion="css-img"
+                                class="img style-LT5Ir"
+                                id="style-LT5Ir"
+                              ></i>
+                            </div>
+                            <span class="accessible_elem"> </span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </th>
+                <th
+                  className="vCampaign-delivery"
+                  style={{
+                    width: "150px",
+                    position: "sticky",
+                    left: "454px",
+                    top: "0",
+                    zIndex: "1100",
+                  }}
+                >
+                  <div
+                    scrollleft="0"
+                    sorting="ASC"
+                    class="x78zum5 x1q0g3np x1yc453h x12peec7 x6s0dn4 x972fbf xm81vs4 x1qhh985 xm0m39n x13ys2tp x1g960bw"
+                    role="columnheader"
+                    tabindex="-1"
+                    data-auto-logging-id="fede7eb4e"
+                  >
+                    <div data-visualcompletion="ignore" class=""></div>
+                    <div></div>
+                    <div
+                      class="x78zum5 xdt5ytf xl56j7k x1n2onr6 style-Ufvnv"
+                      id="style-Ufvnv"
+                    >
+                      <div
+                        class="_643k style-N1v2S"
+                        id="reporting_table_column_delivery"
+                      >
+                        <div
+                          aria-level="4"
+                          class="x1xqt7ti xsuwoey x63nzvj xbsr9hj xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj x117nqv4 xeuugli x1uvtmcs"
+                          role="heading"
+                          data-interactable="|mouseover|"
+                          id="js_2j4"
+                        >
+                          <div class="x1ua5tub x104kibb x1f6kntn x1h7i4cw xdy096k x195v057 x6ikm8r x10wlt62 x1yc453h xlyipyv xeaf4i8">
+                            <div class="_3ea9">
+                              Delivery
+                              <span id="style-ltFgb" class="style-ltFgb">
+                                <i
+                                  alt=""
+                                  data-visualcompletion="css-img"
+                                  class="img style-YBMcW"
+                                  id="style-YBMcW"
+                                ></i>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <div data-visualcompletion="ignore" class="">
+                          <div></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="x10l6tqk xnx3k43">
+                      <div class="x1pha0wt x78zum5 x2lwn1j xeuugli">
+                        <div>
+                          <button
+                            aria-label="open sorting options drop-down menu"
+                            class="x78zum5 x6s0dn4 xl56j7k x1nn3v0j xg83lxy x1120s5i x1h0ha7o x8j4wrb x1npaq5j x1c83p5e x1enjb0b x199158v xgcd1z6 x1ejq31n xd10rxx x1sy0etr x17r0tee xx8sgm8"
+                            type="button"
+                          >
+                            <div class="xgxxoiu">
+                              <i
+                                alt=""
+                                data-visualcompletion="css-img"
+                                class="img style-rCYDd"
+                                id="style-rCYDd"
+                              ></i>
+                            </div>
+                            <span class="accessible_elem"> </span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </th>
+                {categories[selectedCategory].map((col) => (
+                  <th
+                    key={col}
+                    className={`vCampaign-${col
+                      .replace(/\s+/g, "—")
+                      .toLowerCase()}`}
+                    style={getColumnStyles(col, {
+                      Results: 180, // Example custom width for Results
+                      Reach: 160, // Example custom width for Reach
+                    })}
+                  >
+                    {col === "Results" ? (
+                      <div>
+                        <div
+                          scrollleft="586"
+                          class="x78zum5  x1yc453h   x6s0dn4 x972fbf xm81vs4 x1qhh985 "
+                          role="columnheader"
+                          tabindex="-1"
+                          data-auto-logging-id="f13d0860d"
+                        >
+                          <div>
+                            <div>
+                              <div
+                                aria-level="4"
+                                class="x1xqt7ti xsuwoey x63nzvj xbsr9hj xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj x117nqv4 xeuugli x1uvtmcs"
+                                role="heading"
+                                data-interactable="|mouseover|"
+                                id="js_2yg"
+                              >
+                                <div class="x1ua5tub x104kibb x1f6kntn x1h7i4cw xdy096k x195v057 x6ikm8r x10wlt62 x1yc453h xlyipyv xeaf4i8">
+                                  <span
+                                    aria-expanded="false"
+                                    aria-label="information symbol, button, tap for more information"
+                                    class="x1emribx"
+                                  >
+                                    <span id="js_9ig">
+                                      <i
+                                        alt=""
+                                        data-visualcompletion="css-img"
+                                        class="img style-lAmPe"
+                                        id="style-lAmPe"
+                                      ></i>
+                                    </span>
+                                  </span>
+                                  <div class="_3ea9">
+                                    {col}
+                                    <span id="style-enRz6" class="style-enRz6">
+                                      <div
+                                        id="style-MORL2"
+                                        class="style-MORL2"
+                                      ></div>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div data-visualcompletion="ignore" class="">
+                                <div
+                                  data-visualcompletion="ignore"
+                                  class=""
+                                ></div>
+                              </div>
+                            </div>
+                            <div>
+                              <div data-visualcompletion="ignore" class="">
+                                <div></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="x10l6tqk xnx3k43">
+                            <div class="x1pha0wt x78zum5 x2lwn1j xeuugli">
+                              <div>
+                                <button
+                                  aria-label="open sorting options drop-down menu"
+                                  class="x78zum5 x6s0dn4 xl56j7k x1nn3v0j xg83lxy x1120s5i x1h0ha7o x8j4wrb x1npaq5j x1c83p5e x1enjb0b x199158v xgcd1z6 x1ejq31n xd10rxx x1sy0etr x17r0tee xx8sgm8"
+                                  type="button"
+                                >
+                                  <div class="xgxxoiu">
+                                    <i
+                                      alt=""
+                                      data-visualcompletion="css-img"
+                                      class="img style-LT5Ir"
+                                      id="style-LT5Ir"
+                                    ></i>
+                                  </div>
+                                  <span class="accessible_elem"> </span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        scrollleft="586"
+                        class="x78zum5  x1yc453h   x6s0dn4 x972fbf xm81vs4 x1qhh985 "
+                        role="columnheader"
+                        tabindex="-1"
+                        data-auto-logging-id="f13d0860d"
+                      >
+                        <div>
+                          <div>
+                            <div
+                              aria-level="4"
+                              class="x1xqt7ti xsuwoey x63nzvj xbsr9hj xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj x117nqv4 xeuugli x1uvtmcs"
+                              role="heading"
+                              data-interactable="|mouseover|"
+                              id="js_2yg"
+                            >
+                              <div class="x1ua5tub x104kibb x1f6kntn x1h7i4cw xdy096k x195v057 x6ikm8r x10wlt62 x1yc453h xlyipyv xeaf4i8">
+                                <div class="_3ea9">
+                                  {col}
+                                  <span id="style-enRz6" class="style-enRz6">
+                                    <div
+                                      id="style-MORL2"
+                                      class="style-MORL2"
+                                    ></div>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            <div data-visualcompletion="ignore" class="">
+                              <div
+                                data-visualcompletion="ignore"
+                                class=""
+                              ></div>
+                            </div>
+                          </div>
+                          <div>
+                            <div data-visualcompletion="ignore" class="">
+                              <div></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="x10l6tqk xnx3k43">
+                          <div class="x1pha0wt x78zum5 x2lwn1j xeuugli">
+                            <div>
+                              <button
+                                aria-label="open sorting options drop-down menu"
+                                class="x78zum5 x6s0dn4 xl56j7k x1nn3v0j xg83lxy x1120s5i x1h0ha7o x8j4wrb x1npaq5j x1c83p5e x1enjb0b x199158v xgcd1z6 x1ejq31n xd10rxx x1sy0etr x17r0tee xx8sgm8"
+                                type="button"
+                              >
+                                <div class="xgxxoiu">
+                                  <i
+                                    alt=""
+                                    data-visualcompletion="css-img"
+                                    class="img style-LT5Ir"
+                                    id="style-LT5Ir"
+                                  ></i>
+                                </div>
+                                <span class="accessible_elem"> </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}{" "}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody>
+              {campaigns.map((campaign, index) => (
+                <React.Fragment key={index}>
+                  <tr
+                    key={index}
+                    onMouseEnter={() => handleMouseEnter(index)}
+                    onMouseLeave={handleMouseLeave}
+                    style={{
+                      position: "relative",
+                    }}
+                  >
+                    <td
+                      style={{
+                        position: "sticky", // Make the column sticky
+                        left: "0", // Fix the column to the left
+                        zIndex: 999,
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <input
+                        style={{
+                          width: "22px",
+                          height: "22px",
+                          border: "1px solid gainsboro",
+                          outline: "none",
+                          marginRight: "8px",
+                          borderRadius: "4px",
+                          appearance: "none", // Remove default checkbox styling
+                          backgroundColor: "white", // Set background to white
+                          cursor: "pointer", // Change cursor to pointer for better UX
+                        }}
+                        type="checkbox"
+                        className="uniquecheckbox"
+                      />
+                    </td>
+                    <td
+                      style={{
+                        position: "sticky", // Make the column sticky
+                        left: "53px", // Fix the column to the left
+                        zIndex: 999,
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <div class="">
+                        <div class="x6s0dn4 x78zum5 xl56j7k x2lwn1j xeuugli x5yr21d">
+                          <div data-visualcompletion="ignore" class="">
+                            <div>
+                              <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x19lwn94 x1c4vz4f">
+                                <div class="x1rg5ohu x1n2onr6 x3oybdh">
+                                  <input
+                                    aria-checked="true"
+                                    aria-label="On/Off"
+                                    role="switch"
+                                    aria-describedby="js_aox"
+                                    aria-labelledby="js_b2k"
+                                    class="xjyslct x1ypdohk x5yr21d x17qophe xdj266r x11i5rnm xat24cr x1mh8g0r x1w3u9th x1t137rt x10l6tqk x13vifvy xh8yej3 x1vjfegm"
+                                    id="js_aow"
+                                    type="checkbox"
+                                    value="true"
+                                    checked=""
+                                  />
+                                  <div class="x1n2onr6 xh8yej3">
+                                    <div class="x6s0dn4 x78zum5 x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg xo1l8bm xbsr9hj x1k4ywey x13dflua xxziih7 x12w9bfk x14qfxbe xexx8yu x4uap5 x18d9i69 xkhd6sd x15406qy">
+                                      <div class=""></div>
+                                      <div class="xw4jnvo x1qx5ct2 xzolkzo x12go9s9 x1rnf11y xprq8jg x13dflua x6o7n8i xxziih7 x12w9bfk xo1l8bm x140t73q x19bke7z x1psfjxj"></div>
+                                    </div>
+                                    <div class="xwebqov xvyu6v8 xrsgblv x10lij0i xzolkzo x12go9s9 x1rnf11y xprq8jg x13fuv20 xu3j5b3 x1q0q8m5 x26u7qi x178xt8z xm81vs4 xso031l xy80clv x13dflua x6o7n8i xxziih7 x12w9bfk xg01cxk x47corl x10l6tqk x17qophe xds687c x13vifvy x1ey2m1c x6ikm8r x10wlt62 xnl74ce xmb4j5p xdx8kah xwmxa91 xmn8db3 x8lbu6m x2te4dl x1bs8fl3 xhhp2wi x14q35kh x1wa3ocq x1n7iyjn x1t0di37 x1tt7eqi xe25xm5 xsp6npd x1s928wv x1w3onc2 x1j6awrg x9obomg x1ryaxvv x1hvfe8t x1te75w5"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td
+                      style={{
+                        position: "sticky", // Make the column sticky
+                        left: "141px", // Fix the column to the left
+                        zIndex: 999,
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <div>
+                        <div class="x9f619 x78zum5 xdj266r x11i5rnm xat24cr x1mh8g0r">
+                          <div class="x1iyjqo2 x6ikm8r x10wlt62">
+                            <div class="x78zum5">
+                              <div
+                                class="ellipsis _13is"
+                                data-hover="tooltip"
+                                data-tooltip-content="[11/30/2024] Promoting https://thesearchresults.xyz/cf/r/66fa3bbd9eb0fb0012e7a211"
+                                data-tooltip-display="overflow"
+                                data-tooltip-position="above"
+                                data-tooltip-text-direction="auto"
+                                id="js_bf9"
+                              >
+                                <div
+                                  data-visualcompletion="ignore"
+                                  class="xt0psk2"
+                                ></div>
+                                <span
+                                  class=" "
+                                  data-tracked="true"
+                                  data-interactable="|mousedown||click|"
+                                >
+                                  <a
+                                    class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                    href="#"
+                                  >
+                                    <span class="_3dfi _3dfj">
+                                      {campaign?.campaingname}
+                                    </span>
+                                  </a>
+                                </span>
+                              </div>
+                              <div data-visualcompletion="ignore" class="">
+                                <a
+                                  aria-label="Edit"
+                                  class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                  href="#"
+                                >
+                                  <div class="_5_6n">
+                                    <span class="_5_6o"></span>
+                                  </div>
+                                </a>
+                              </div>
+                            </div>
+                            {(hoveredRow === index || index === 0) && (
+                              <div data-visualcompletion="ignore" class="">
+                                <div class="x1lliihq">
+                                  <div id="style-NvCVa" class="style-NvCVa">
+                                    <div class="x78zum5 x6ikm8r x10wlt62 x1n2onr6">
+                                      <div class="_9p_z">
+                                        <div class="_9p_y" role="toolbar">
+                                          <div class="x78zum5 x2lwn1j xeuugli">
+                                            <span
+                                              class=" "
+                                              data-tracked="true"
+                                              data-interactable="|mousedown||click|"
+                                            >
+                                              <a
+                                                aria-label="View Charts"
+                                                class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                                href="#"
+                                              >
+                                                <span class="_3qjp">
+                                                  <div class="x6s0dn4 x78zum5">
+                                                    <div class="xw3qccf x1gslohp">
+                                                      <i
+                                                        alt=""
+                                                        data-visualcompletion="css-img"
+                                                        class="img style-mBbvW"
+                                                        id="style-mBbvW"
+                                                      ></i>
+                                                    </div>
+                                                    <span
+                                                      onClick={() =>
+                                                        handleViewChart(
+                                                          campaign?._id
+                                                        )
+                                                      }
+                                                      class="ellipsis"
+                                                      data-tooltip-display="overflow"
+                                                    >
+                                                      View Charts
+                                                    </span>
+                                                  </div>
+                                                </span>
+                                              </a>
+                                            </span>
+                                            <span
+                                              class=" "
+                                              data-tracked="true"
+                                              data-interactable="|mousedown||click|"
+                                            >
+                                              <a
+                                                aria-label="Edit"
+                                                class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                                href="#"
+                                              >
+                                                <span class="_3qjp">
+                                                  <div class="x6s0dn4 x78zum5">
+                                                    <div class="xw3qccf x1gslohp">
+                                                      <i
+                                                        alt=""
+                                                        data-visualcompletion="css-img"
+                                                        class="img style-RHBeZ"
+                                                        id="style-RHBeZ"
+                                                      ></i>
+                                                    </div>
+                                                    <span
+                                                      onClick={() =>
+                                                        handleViewEdit(
+                                                          campaign?._id
+                                                        )
+                                                      }
+                                                      class="ellipsis"
+                                                      data-tooltip-display="overflow"
+                                                    >
+                                                      Edit
+                                                    </span>
+                                                  </div>
+                                                </span>
+                                              </a>
+                                            </span>
+                                            <span
+                                              class=" "
+                                              data-tracked="true"
+                                              data-interactable="|mousedown||click|"
+                                            >
+                                              <a
+                                                aria-label="Duplicate"
+                                                class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                                href="#"
+                                              >
+                                                <span class="_3qjp">
+                                                  <div class="x6s0dn4 x78zum5">
+                                                    <div class="xw3qccf x1gslohp">
+                                                      <i
+                                                        alt=""
+                                                        data-visualcompletion="css-img"
+                                                        class="img style-eGddb"
+                                                        id="style-eGddb"
+                                                      ></i>
+                                                    </div>
+                                                    <span
+                                                      class="ellipsis"
+                                                      data-tooltip-display="overflow"
+                                                    >
+                                                      Duplicate
+                                                    </span>
+                                                  </div>
+                                                </span>
+                                              </a>
+                                            </span>
+                                            <span id="ads_manager_dcp_updated_inline_entry_point_nux39">
+                                              <div>
+                                                <div
+                                                  data-visualcompletion="ignore"
+                                                  class=""
+                                                ></div>
+                                              </div>
+                                              <span
+                                                class=" "
+                                                data-tracked="true"
+                                                data-interactable="|mousedown||click|"
+                                              >
+                                                <a
+                                                  aria-label="Compare"
+                                                  class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                                  href="#"
+                                                >
+                                                  <span class="_3qjp">
+                                                    <div class="x6s0dn4 x78zum5">
+                                                      <div class="xw3qccf x1gslohp">
+                                                        <i
+                                                          alt=""
+                                                          data-visualcompletion="css-img"
+                                                          class="img style-7Nnza"
+                                                          id="style-7Nnza"
+                                                        ></i>
+                                                      </div>
+                                                    </div>
+                                                  </span>
+                                                </a>
+                                              </span>
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div
+                                      aria-busy="false"
+                                      aria-controls="js_ap5"
+                                      aria-expanded="false"
+                                      aria-haspopup="menu"
+                                      class="x1i10hfl xjqpnuy xa49m3k xqeqjp1 x2hbi6w x972fbf xcfux6l x1qhh985 xm0m39n x9f619 x1ypdohk xe8uvvx xdj266r x11i5rnm xat24cr x1mh8g0r x2lwn1j xeuugli x16tdsg8 xggy1nq x1ja2u2z x1t137rt x6s0dn4 x1ejq31n xd10rxx x1sy0etr x17r0tee x3nfvp2 xdl72j9 x1q0g3np x2lah0s x193iq5w x1n2onr6 x1hl2dhg x87ps6o xxymvpz xlh3980 xvmahel x1lku1pv x1g40iwv x1lcm9me x1yr5g0i xrt01vj x10y3i5r xo1l8bm xbsr9hj x1v911su xurb0ha x1sxyh0 xexx8yu x18d9i69"
+                                      role="button"
+                                      tabindex="0"
+                                    >
+                                      <span class="xmi5d70 x1fvot60 xxio538 x1heor9g xq9mrsl x1h4wwuj x1pd3egz xeuugli x1uvtmcs xh8yej3">
+                                        <div class="x78zum5">
+                                          <div
+                                            class="x1qvwoe0 xjm9jq1 x1y332i5 xcwd3tp x1jyxor1 x39eecv x6ikm8r x10wlt62 x10l6tqk xuxw1ft x1i1rx1s"
+                                            data-sscoverage-ignore="true"
+                                          >
+                                            Open Drop-down
+                                          </div>
+                                          <div class="x6s0dn4 x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 x19lwn94 x1hc1fzr x13dflua x6o7n8i xxziih7 x12w9bfk xl56j7k xh8yej3">
+                                            <div
+                                              class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f"
+                                              role="presentation"
+                                            >
+                                              <div
+                                                class="xtwfq29 style-xc1wS"
+                                                id="style-xc1wS"
+                                              ></div>
+                                            </div>
+                                            ​
+                                          </div>
+                                        </div>
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td
+                      style={{
+                        position: "sticky", // Make the column sticky
+                        left: "454px", // Fix the column to the left
+                        zIndex: 999,
+                        backgroundColor: "white",
+                      }}
+                    >
+                      <span>
+                        <div class="clearfix _ikh">
+                          <div class="x6s0dn4 x78zum5 x1q0g3np x2lwn1j xeuugli">
+                            <div class="x1yc453h x1kky2od x1y5rjcf">
+                              <i
+                                alt=""
+                                data-visualcompletion="css-img"
+                                class="img style-e6UJI"
+                                id="style-e6UJI"
+                              ></i>
+                            </div>
+                            <span class="xmi5d70 x1fvot60 xo1l8bm xxio538 xbsr9hj xq9mrsl x1h4wwuj xeuugli x1uvtmcs">
+                              Active
+                            </span>
+                          </div>
+                          <div class="_4bl7" style={{ border: "none" }}>
+                            <div
+                              class=" _1b33 _e9h _abu1"
+                              style={{ border: "none" }}
+                            >
+                              <div class="_e9n" style={{ border: "none" }}>
+                                <div class="" style={{ border: "none" }}>
+                                  <div
+                                    style={{ border: "none" }}
+                                    geotextcolor="value"
+                                    data-hover="tooltip"
+                                    data-tooltip-display="overflow"
+                                    data-tooltip-text-direction="auto"
+                                    class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                                  >
+                                    <span
+                                      style={{ border: "none" }}
+                                      class="x3nfvp2 xmix8c7 x1n2onr6 xqkyysk xlpv7t4 xzolkzo x12go9s9 x1rnf11y xprq8jg x6s0dn4 x1k2j06m x10ogl3i x1r0jzty x17zd0t2"
+                                    >
+                                      <span
+                                        style={{ border: "none" }}
+                                        class="x3nfvp2 xmix8c7 x1n2onr6 xqkyysk xlpv7t4 xzolkzo x12go9s9 x1rnf11y xprq8jg x6s0dn4 x1k2j06m x10ogl3i x1r0jzty x17zd0t2"
+                                      >
+                                        <div
+                                          style={{ border: "none" }}
+                                          class="x3nfvp2 x120ccyz x1heor9g"
+                                          role="presentation"
+                                        >
+                                          <div
+                                            style={{ border: "none" }}
+                                            class="xtwfq29 style-OVWKk"
+                                            id="style-OVWKk"
+                                          ></div>
+                                        </div>
+                                        <div class="xmi5d70 xw23nyj x63nzvj x1heor9g x2b8uid xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj x117nqv4 xeuugli x1uvtmcs">
+                                          High performing
+                                        </div>
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </span>
+                    </td>
+                    {categories[selectedCategory].map((header) => (
+                      <td
+                        style={{
+                          color: "rgba(0, 0, 0, 0.8)",
+                          fontSize: "14px",
+                          fontWeight: 400,
+                          lineHeight: "20px",
+                          textAlign:
+                            typeof campaign[fieldMapping[header]] === "number"
+                              ? "right"
+                              : "left", // Align numbers to the right
+                        }}
+                        key={header}
+                      >
+                        {(() => {
+                          const value = campaign[fieldMapping[header]];
+                          if (value == null) return "—"; // Return default placeholder if value is null/undefined
+
+                          if (header === "Budget") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                $
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "gray",
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  Daily
+                                </div>
+                              </div>
+                            );
+                          }
+                          if (header === "CPC (cost per link click)") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                $
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </div>
+                            );
+                          }
+                          if (header === "CPC (all)") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                $
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </div>
+                            );
+                          }
+                          if (header === "CTR (all)") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                                %
+                              </div>
+                            );
+                          }
+
+                          if (header === "CPM (cost per 1,000 impressions)") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                $
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </div>
+                            );
+                          }
+
+                          if (header === "CTR (link click-through rate)") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                                %
+                              </div>
+                            );
+                          }
+                          if (header === "Results") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#555",
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  Link clicks
+                                </div>
+                              </div>
+                            );
+                          }
+                          if (header === "Cost per result") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#555",
+                                    marginTop: "2px",
+                                  }}
+                                >
+                                  Per link clicks
+                                </div>
+                              </div>
+                            );
+                          }
+                          if (header === "Amount spent") {
+                            // Special case for Budget cell
+                            return (
+                              <div>
+                                $
+                                {value.toLocaleString(undefined, {
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 2,
+                                })}
+                              </div>
+                            );
+                          }
+
+                          if (typeof value === "number") {
+                            // Check if the value is a number
+                            return value.toLocaleString(undefined, {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
+                            });
+                          }
+
+                          return value; // Return non-numeric values as-is
+                        })()}
+                      </td>
+                    ))}
+                  </tr>
+                  {showPerformanceRows &&
+                    Array.from({ length: 11 }).map((_, subIndex) => {
+                      const rowData = [
+                        "Facebook Facebook profile feed In-app",
+                        "Facebook Facebook feed Desktop",
+                        "Facebook Marketplace In-app",
+                        "Facebook Search results In-app",
+                        "Facebook Feed: video feeds In-app",
+                        "Facebook Facebook feed Mobile Web",
+                        "Facebook Marketplace Mobile Web",
+                        "Facebook Facebook feed In-app",
+                        "Facebook Marketplace Desktop",
+                        "Facebook Search results Mobile Web",
+                        "Facebook Facebook Stories In-app",
+                      ][subIndex];
+
+                      const rowPercentages = {
+                        "Facebook Facebook profile feed In-app": 19,
+                        "Facebook Facebook feed Desktop": 7,
+                        "Facebook Marketplace In-app": 14,
+                        "Facebook Search results In-app": 16,
+                        "Facebook Feed: video feeds In-app": 4,
+                        "Facebook Facebook feed Mobile Web": 2,
+                        "Facebook Marketplace Mobile Web": 1,
+                        "Facebook Facebook feed In-app": 20,
+                        "Facebook Marketplace Desktop": 6,
+                        "Facebook Search results Mobile Web": 3,
+                        "Facebook Facebook Stories In-app": 8,
+                      };
+
+                      const resultValue =
+                        campaign[fieldMapping["Results"]] || 0;
+                      const reachValue = campaign[fieldMapping["Reach"]] || 0;
+                      const impressionValue =
+                        campaign[fieldMapping["Impressions"]] || 0;
+                      const amountSpentValue =
+                        campaign[fieldMapping["Amount spent"]] || 0;
+                      const linkClicksValue =
+                        campaign[fieldMapping["Link clicks"]] || 0;
+                      const clicksAllValue =
+                        campaign[fieldMapping["Clicks (all)"]] || 0;
+
+                      const calculatePercentage = (value, percentage) => {
+                        const result = (value * percentage) / 100;
+                        return Math.round(result).toLocaleString(); // Format as integer with commas
+                      };
+
+                      const calculateCPM = (amountSpent, impressions) => {
+                        if (!impressions || impressions === 0) {
+                          return "—";
+                        }
+                        const cpm = (amountSpent / impressions) * 1000;
+                        return cpm.toFixed(2);
+                      };
+
+                      const calculateCPC = (amountSpent, clicks) => {
+                        if (!clicks || clicks === 0) {
+                          return "—";
+                        }
+                        const cpc = amountSpent / clicks;
+                        return cpc.toFixed(2);
+                      };
+
+                      const calculateCTR = (clicks, impressions) => {
+                        if (!impressions || impressions === 0) {
+                          return "—";
+                        }
+                        const ctr = (clicks / impressions) * 100;
+                        return ctr.toFixed(2);
+                      };
+                      const calculateCostPerResult = (amountSpent, results) => {
+                        if (!results || results === 0) {
+                          return "—"; // Avoid division by zero
+                        }
+                        const costPerResult = amountSpent / results;
+                        return costPerResult.toFixed(2); // Format to 2 decimal places
+                      };
+
+                      const adjustValue = (value, adjustment) => {
+                        // Check if the value is a valid number
+                        const numericValue = parseFloat(value);
+                        if (isNaN(numericValue)) {
+                          return value; // Return the original value if it's not a number (e.g., "—")
+                        }
+                        const adjusted = numericValue + adjustment;
+                        return adjusted.toFixed(2); // Return the adjusted value with 2 decimal places
+                      };
+
+                      // Determine adjustment value for the current row
+                      let adjustment = 0;
+                      switch (rowData.trim()) {
+                        case "Facebook Facebook profile feed In-app":
+                          adjustment = 0.03;
+                          break;
+                        case "Facebook Facebook feed Desktop":
+                          adjustment = 0.02;
+                          break;
+                        case "Facebook Marketplace In-app":
+                          adjustment = -0.01;
+                          break;
+                        case "Facebook Feed: video feeds In-app":
+                          adjustment = 0.06;
+                          break;
+                        case "Facebook Facebook feed Mobile Web":
+                          adjustment = 0.03;
+                          break;
+                        case "Facebook Marketplace Mobile Web":
+                          adjustment = 0.04;
+                          break;
+                        case "Facebook Facebook feed In-app":
+                          adjustment = -0.07;
+                          break;
+                        case "Facebook Marketplace Desktop":
+                          adjustment = 0.01;
+                          break;
+                        case "Facebook Search results Mobile Web":
+                          adjustment = 0.05;
+                          break;
+                        case "Facebook Facebook Stories In-app":
+                          adjustment = -0.03;
+                          break;
+                        default:
+                          adjustment = 0; // No adjustment for Facebook Search results In-app
+                      }
+
+                      return (
+                        <tr key={`sub-${subIndex}`}>
+                          <td
+                            style={{
+                              height: "30px",
+                              zIndex: "1000",
+                              position: "sticky",
+                              left: "0",
+                              backgroundColor: "white",
+                            }}
+                          ></td>
+                          <td
+                            style={{
+                              height: "30px",
+                              zIndex: "1000",
+                              position: "sticky",
+                              left: "53px",
+                              backgroundColor: "white",
+                            }}
+                          ></td>
+                          <td
+                            style={{
+                              color: "rgba(0, 0, 0, 0.8)",
+                              fontSize: "14px",
+                              fontWeight: 400,
+                              lineHeight: "20px",
+                              position: "sticky",
+                              backgroundColor: "white",
+                              left: "141px",
+                              zIndex: "1100px",
+                            }}
+                          >
+                            {rowData}
+                          </td>
+                          <td
+                            style={{
+                              position: "sticky",
+                              left: "454px",
+                              zIndex: "1100px",
+                              backgroundColor: "white",
+                            }}
+                          ></td>
+                          {categories[selectedCategory].map((header) => (
+                            <td
+                              style={{
+                                color: "rgba(0, 0, 0, 0.8)",
+                                fontSize: "14px",
+                                fontWeight: 400,
+                                lineHeight: "20px",
+                                textAlign: "right",
+                              }}
+                              key={header}
+                            >
+                              {header === "Attribution setting"
+                                ? campaign[fieldMapping[header]] || "—"
+                                : header === "Results" &&
+                                  rowPercentages[rowData]
+                                ? calculatePercentage(
+                                    resultValue,
+                                    rowPercentages[rowData]
+                                  )
+                                : header === "Reach" && rowPercentages[rowData]
+                                ? calculatePercentage(
+                                    reachValue,
+                                    rowPercentages[rowData]
+                                  )
+                                : header === "Impressions" &&
+                                  rowPercentages[rowData]
+                                ? calculatePercentage(
+                                    impressionValue,
+                                    rowPercentages[rowData]
+                                  )
+                                : header === "Amount spent" &&
+                                  rowPercentages[rowData]
+                                ? `$${adjustValue(
+                                    calculatePercentage(
+                                      amountSpentValue,
+                                      rowPercentages[rowData]
+                                    ),
+                                    adjustment
+                                  )}`
+                                : header === "Link clicks" &&
+                                  rowPercentages[rowData]
+                                ? calculatePercentage(
+                                    linkClicksValue,
+                                    rowPercentages[rowData]
+                                  )
+                                : header === "CPM (cost per 1,000 impressions)"
+                                ? adjustValue(
+                                    calculateCPM(
+                                      amountSpentValue,
+                                      impressionValue
+                                    ),
+                                    adjustment
+                                  )
+                                : header === "Cost per result" &&
+                                  rowPercentages[rowData]
+                                ? `$${adjustValue(
+                                    calculateCostPerResult(
+                                      amountSpentValue,
+                                      calculatePercentage(
+                                        resultValue,
+                                        rowPercentages[rowData]
+                                      ).replaceAll(",", "") // Remove commas for numeric calculation
+                                    ),
+                                    adjustment
+                                  )}`
+                                : header === "CPC (cost per link click)"
+                                ? adjustValue(
+                                    calculateCPC(
+                                      amountSpentValue,
+                                      linkClicksValue
+                                    ),
+                                    adjustment
+                                  )
+                                : header === "CTR (link click-through rate)"
+                                ? adjustValue(
+                                    calculateCTR(
+                                      linkClicksValue,
+                                      impressionValue
+                                    ),
+                                    adjustment
+                                  )
+                                : header === "Clicks (all)" &&
+                                  rowPercentages[rowData]
+                                ? calculatePercentage(
+                                    clicksAllValue,
+                                    rowPercentages[rowData]
+                                  )
+                                : header === "CTR (all)"
+                                ? adjustValue(
+                                    calculateCTR(
+                                      clicksAllValue,
+                                      impressionValue
+                                    ),
+                                    adjustment
+                                  )
+                                : header === "CPC (all)"
+                                ? adjustValue(
+                                    calculateCPC(
+                                      amountSpentValue,
+                                      clicksAllValue
+                                    ),
+                                    adjustment
+                                  )
+                                : ""}{" "}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
+                </React.Fragment>
+              ))}
+            </tbody>
+            <tfoot style={{ backgroundColor: "white" }}>
+              <tr style={{ backgroundColor: "white" }}>
+                {/* First four columns */}
+                <td
+                  style={{
+                    backgroundColor: "white",
+                    position: "sticky",
+                    left: "0",
+                    zIndex: "1300",
+                  }}
+                  colSpan="2"
+                ></td>{" "}
+                {/* Checkbox */}
+                <td
+                  colSpan="1"
+                  style={{
+                    position: "sticky",
+                    left: "141px",
+                    zIndex: "1300",
+                  }}
+                >
+                  <div class="">
+                    <div class="_e9n">
+                      <div class="">
+                        <div
+                          geotextcolor="value"
+                          data-hover="tooltip"
+                          data-tooltip-display="overflow"
+                          data-tooltip-text-direction="auto"
+                          class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                        >
+                          <div class="x1cy8zhl x78zum5 x1q0g3np xozqiw3 x2lwn1j xeuugli x1iyjqo2 xs83m0k x19lwn94">
+                            Results from {campaigns?.length} campaigns
+                            <div
+                              aria-expanded="false"
+                              aria-label="information symbol, button, tap for more information"
+                              tabindex="0"
+                              role="button"
+                            >
+                              <div class="x1rg5ohu x67bb7w">
+                                <div class="xmi5d70 x1fvot60 xxio538 xbsr9hj xq9mrsl x1h4wwuj x1fcty0u x78zum5 xl56j7k x6s0dn4">
+                                  <span>​</span>
+                                  <div class="xjm9jq1 x78zum5 xl56j7k x6s0dn4">
+                                    <div class="x78zum5 x1ypdohk x1uuroth x67bb7w xsgj6o6 xw3qccf">
+                                      <div
+                                        class="x3nfvp2 x120ccyz x4s1yf2"
+                                        role="presentation"
+                                      >
+                                        <div
+                                          class="xtwfq29 style-TsosY"
+                                          id="style-TsosY"
+                                        ></div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="ellipsis _1ha4"
+                          data-hover="tooltip"
+                          data-tooltip-display="overflow"
+                          data-tooltip-text-direction="auto"
+                        >
+                          <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                            Excludes deleted items
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </td>{" "}
+                {/* Campaign */}
+                <td
+                  colSpan="1"
+                  style={{
+                    position: "sticky",
+                    left: "454px",
+                    zIndex: "1300",
+                  }}
+                ></td>{" "}
+                {/* Delivery */}
+                {/* Dynamically render the rest of the footer columns based on categories */}
+                {categories[selectedCategory].map((header, index) => (
+                  <td key={`footer-${index}`}>
+                    {header === "Bid strategy" ? (
+                      ""
+                    ) : header === "Budget" ? (
+                      ""
+                    ) : header === "Attribution setting" ? (
+                      <div>
+                        <div class="">
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                                id="js_1hd"
+                              >
+                                7-day click or 1-day view
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "Results" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>
+                                  {Number(totalResults).toLocaleString()}
+                                </span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Link Clicks
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "Reach" ? (
+                      <div>
+                        <div style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <div class="x1rg5ohu x67bb7w">
+                                  <span id="style-dDOf7" class="style-dDOf7">
+                                    {Number(totalReach).toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Accounts Centre accounts
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "Impressions" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                {Number(totalImpressions).toLocaleString()}
+                                <span></span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Total
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "Cost per result" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>${largestCostPerResult?.toFixed(2)}</span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Per link click
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "Amount spent" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>
+                                  $
+                                  {Number(totalAmountSpent).toLocaleString(
+                                    undefined,
+                                    {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    }
+                                  )}
+                                </span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Total Spent
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "Ends" ? (
+                      <div></div>
+                    ) : header === "Schedule" ? (
+                      <div></div>
+                    ) : header === "CPM (cost per 1,000 impressions)" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>${tatalCPMCost?.toFixed(2)}</span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Per 1,000 Impressions
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "Link clicks" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>{LinkClicksAll?.toLocaleString()}</span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Total
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "CPC (cost per link click)" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>${totalCPCImpression?.toFixed(2)}</span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Per Action
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "CTR (link click-through rate)" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>{totalCTRImpression?.toFixed(2)}%</span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Per Impressions
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "Clicks (all)" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>{tatalClicksAll?.toLocaleString()}</span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Total
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "CTR (all)" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>{totalCTRAll?.toFixed(2)}%</span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Per Impressions
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "CPC (all)" ? (
+                      <div>
+                        <div class="" style={{ textAlign: "right" }}>
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                              >
+                                <span>${totalCPCAll?.toFixed(2)}</span>
+                              </div>
+                              <div
+                                class="ellipsis _1ha4"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                              >
+                                <div class="xt0psk2 xmi5d70 xw23nyj xo1l8bm x63nzvj x1541jtf">
+                                  Per Click
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      header
+                    )}
+                  </td>
+                ))}
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
     </div>

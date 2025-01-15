@@ -2293,7 +2293,7 @@ i.img {
 
 .vCampaign-table th,
 .vCampaign-table td {
-  padding: 6px;
+  padding: 4px 5.5px;
   border: 1px solid #efebeb;
   text-overflow: ellipsis; /* Handle overflow text with ellipsis */
   white-space: nowrap; /* Prevent wrapping in table cells */

@@ -287,6 +287,7 @@ const PageID = ({
                                         style={{
                                           border: "none",
                                           outline: "none",
+                                          height: "18px",
                                         }}
                                         value={currentPageID} // Use currentPageID here
                                         onChange={(e) =>
