@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/Reporting.css";
 import "react-date-range/dist/styles.css"; // main style file
+import { CaretDownOutlined } from "@ant-design/icons";
 
 import "react-date-range/dist/theme/default.css"; // theme css file
 import {
