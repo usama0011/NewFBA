@@ -36,6 +36,9 @@ const App = () => {
   const [filerwithcmapaignname, setFilerThatCampaignName] = useState("");
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const savedCampaignName = localStorage.getItem("filteredCampaignName");
+  const getFirstDayOfMonth = () =>
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const getTodayDate = () => new Date();
 
   const [currentfiltercampaigshow, setcurrentfiltercampaingShow] =
     useState(false);
@@ -46,15 +49,10 @@ const App = () => {
     const storedStartDate = localStorage.getItem("startDate");
     return storedStartDate ? new Date(storedStartDate) : getFirstDayOfMonth();
   });
-
   const [endDate, setEndDate] = useState(() => {
     const storedEndDate = localStorage.getItem("endDate");
-    return storedEndDate ? new Date(storedEndDate) : getToday();
+    return storedEndDate ? new Date(storedEndDate) : getTodayDate();
   });
-
-  const getFirstDayOfMonth = () =>
-    new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const getTodayDate = () => new Date();
 
   const [selectedOption, setSelectedOption] = useState("This Month");
   const [hoverDate, setHoverDate] = useState(null);
@@ -1330,22 +1328,20 @@ const App = () => {
     }
   }, [currentMonth]);
   useEffect(() => {
-    // Check if `filteredCampaignName` exists in localStorage
     const savedCampaignName = localStorage.getItem("filteredCampaignName");
 
     if (savedCampaignName) {
-      // Filter the campaigns based on the saved name
       const filtered = campaings.filter((campaign) =>
-        campaign.campaingname
+        campaign.campaignName
           .toLowerCase()
           .includes(savedCampaignName.toLowerCase())
       );
       setCampaigns(filtered);
     } else {
-      // If no saved name, show all campaigns
       setCampaigns(campaings);
     }
   }, [loading]);
+
   return (
     <div>
       <div
