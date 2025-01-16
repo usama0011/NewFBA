@@ -1484,7 +1484,7 @@ const AdsSets = ({ campaigns, loading }) => {
                                 </a>
                               </div>
                             </div>
-                            {(hoveredRow === index || index === 0) && (
+                            {hoveredRow === index && (
                               <div data-visualcompletion="ignore" class="">
                                 <div class="x1lliihq">
                                   <div id="style-NvCVa" class="style-NvCVa">
@@ -1759,21 +1759,16 @@ const AdsSets = ({ campaigns, loading }) => {
                           if (header === "Budget") {
                             // Special case for Budget cell
                             return (
-                              <div>
-                                $
-                                {value.toLocaleString(undefined, {
-                                  minimumFractionDigits: 0,
-                                  maximumFractionDigits: 2,
-                                })}
-                                <div
-                                  style={{
-                                    fontSize: "12px",
-                                    color: "gray",
-                                    marginTop: "2px",
-                                  }}
-                                >
-                                  Daily
-                                </div>
+                              <div
+                                style={{
+                                  fontSize: "14px",
+                                  color: "#555",
+                                  fontWeight: "400",
+                                  marginTop: "2px",
+                                  textAlign: "left",
+                                }}
+                              >
+                                Using campaign budget
                               </div>
                             );
                           }

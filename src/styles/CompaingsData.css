@@ -2269,6 +2269,16 @@ i.img {
   text-decoration-line: underline;
   text-decoration-style: dotted;
 }
+/* These were inline style tags. Uses id+class to override almost everything */
+#style-hjUhk.style-hjUhk {
+  background-image: url("https://static.xx.fbcdn.net/rsrc.php/v4/y3/r/DeKP7dAAazZ.png?_nc_eui2=AeGoJrZE0cDZs9D86VVccwEMg6L6CXqrgWaDovoJequBZpZ_4jIscvNQ8osJkgYmJoe1Cps4N_hPuUhlUsz-DrFr");
+  background-position: -293px -367px;
+  background-size: auto;
+  width: 12px;
+  height: 12px;
+  background-repeat: no-repeat;
+  display: inline-block;
+}
 
 .vCampaign-container {
   margin: 0px 8px;
@@ -2365,35 +2375,11 @@ i.img {
   z-index: 5; /* Ensure they stay above the scrollable area */
 }
 
-/* For Webkit-based browsers (Chrome, Edge, Safari) */
-.vCampaign-scrollable::-webkit-scrollbar {
-  height: 8px; /* Height of horizontal scrollbar */
-  width: 8px; /* Width of vertical scrollbar */
-}
-
-.vCampaign-scrollable::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Background color of the scrollbar track */
-  border-radius: 10px; /* Rounded corners for the track */
-}
-
-.vCampaign-scrollable::-webkit-scrollbar-thumb {
-  background: #c1c1c1; /* Color of the scrollbar thumb */
-  border-radius: 10px !important; /* Rounded corners for the thumb */
-  border: 2px solid #f1f1f1; /* Add border for a styled effect */
-}
-
 /* For Firefox */
 .vCampaign-scrollable {
   scrollbar-width: thin; /* Use thin scrollbar */
-  scrollbar-color: #c1c1c1 #f1f1f1; /* Thumb and track colors */
-  border-radius: 10px; /* Rounded corners for the entire scrollbar container */
-}
-
-/* For Edge/Modern Browsers */
-.vCampaign-scrollable::-ms-scrollbar {
-  height: 8px;
-  width: 8px;
-  border-radius: 10px !important; /* Rounded corners for scrollbar */
+  scrollbar-color: #c1c1c1 white; /* Thumb and track colors */
+  border-radius: 10px !important; /* Rounded corners for the entire scrollbar container */
 }
 
 .vCampaign-table tbody tr:nth-child(even) {

@@ -61,6 +61,7 @@ const CompaingsData = ({ campaigns, loading }) => {
       "Cost per result",
       "Amount spent",
       "Ends",
+      "plus",
     ],
     Engagement: [
       "Page engagement",
@@ -70,6 +71,7 @@ const CompaingsData = ({ campaigns, loading }) => {
       "Post shares",
       "Follows or likes",
       "CPC (cost per link click)",
+      "plus",
     ],
     "Video Engagement": [
       "Impressions",
@@ -87,6 +89,7 @@ const CompaingsData = ({ campaigns, loading }) => {
       "Video plays at 95%",
       "Video plays at 100%",
       "Video plays",
+      "plus",
     ],
     "Performance and Clicks": [
       "Attribution setting",
@@ -104,6 +107,7 @@ const CompaingsData = ({ campaigns, loading }) => {
       "Clicks (all)",
       "CTR (all)",
       "CPC (all)",
+      "plus",
     ],
     Delivery: [
       "Reach",
@@ -111,6 +115,7 @@ const CompaingsData = ({ campaigns, loading }) => {
       "Cost per 1,000 Accounts Centre accounts reached",
       "Impressions",
       "CPM (cost per 1,000 impressions)",
+      "plus",
     ],
   };
   const [showPerformanceRows, setShowPerformanceRows] = useState(false);
@@ -119,9 +124,6 @@ const CompaingsData = ({ campaigns, loading }) => {
     return { width: `${customWidths[colName] || 150}px` };
   };
 
-  const handleChange = (e) => {
-    setSelectedCategory(e.target.value);
-  };
   const totalResults = campaigns.reduce(
     (sum, record) => sum + (Number(record?.Results) || 0),
     0
@@ -707,7 +709,9 @@ const CompaingsData = ({ campaigns, loading }) => {
                                       id="style-knHVB"
                                     ></div>
                                   </div>
-                                  <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs x1iyjqo2"></div>
+                                  <div class="x1xqt7ti x1fvot60 xk50ysn xxio538 x1heor9g xuxw1ft x6ikm8r x10wlt62 xlyipyv x1h4wwuj xeuugli x1uvtmcs x1iyjqo2">
+                                    Coloums
+                                  </div>
                                   <div
                                     class="x3nfvp2 x120ccyz x1heor9g x2lah0s x1c4vz4f x1gryazu"
                                     role="presentation"
@@ -1205,6 +1209,7 @@ const CompaingsData = ({ campaigns, loading }) => {
                     style={getColumnStyles(col, {
                       Results: 180, // Example custom width for Results
                       Reach: 160, // Example custom width for Reach
+                      plus: 25,
                     })}
                   >
                     {col === "Results" ? (
@@ -1285,6 +1290,33 @@ const CompaingsData = ({ campaigns, loading }) => {
                               </div>
                             </div>
                           </div>
+                        </div>
+                      </div>
+                    ) : col === "plus" ? (
+                      <div>
+                        <div class="_3bwy snipcss-Idxlz">
+                          <div class="_3bwx">
+                            <div>
+                              <a
+                                class="xt0psk2 x1hl2dhg xt0b8zv xmi5d70 x1fvot60 xxio538 x1qsmy5i xq9mrsl x1yc453h x1h4wwuj x1fcty0u"
+                                href="#"
+                                data-auto-logging-id="fbc72b67d"
+                              >
+                                <div class="x1rg5ohu x67bb7w" id="js_4qe">
+                                  <i
+                                    alt="Customise columns..."
+                                    aria-label="Customise columns..."
+                                    data-visualcompletion="css-img"
+                                    class="img style-hjUhk"
+                                    id="style-hjUhk"
+                                  >
+                                    <u>Customise columns...</u>
+                                  </i>
+                                </div>
+                              </a>
+                            </div>
+                          </div>
+                          <div class="_3bwx"></div>
                         </div>
                       </div>
                     ) : (
@@ -1755,6 +1787,9 @@ const CompaingsData = ({ campaigns, loading }) => {
                         {(() => {
                           const value = campaign[fieldMapping[header]];
                           if (value == null) return "—"; // Return default placeholder if value is null/undefined
+                          {
+                            console.log(header);
+                          }
 
                           if (header === "Budget") {
                             // Special case for Budget cell
@@ -1789,6 +1824,7 @@ const CompaingsData = ({ campaigns, loading }) => {
                               </div>
                             );
                           }
+
                           if (header === "CPC (all)") {
                             // Special case for Budget cell
                             return (
@@ -2290,6 +2326,23 @@ const CompaingsData = ({ campaigns, loading }) => {
                               >
                                 7-day click or 1-day view
                               </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : header === "plus" ? (
+                      <div>
+                        <div class="">
+                          <div class="_e9n">
+                            <div class="">
+                              <div
+                                geotextcolor="value"
+                                data-hover="tooltip"
+                                data-tooltip-display="overflow"
+                                data-tooltip-text-direction="auto"
+                                class="xmi5d70 x1fvot60 xo1l8bm xxio538 x1lliihq x6ikm8r x10wlt62 xlyipyv xuxw1ft xbsr9hj"
+                                id="js_1hd"
+                              ></div>
                             </div>
                           </div>
                         </div>
